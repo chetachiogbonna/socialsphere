@@ -6,8 +6,9 @@ export const getForCurrentUser = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error("Not authenticated");
+      return;
     }
+
     return await ctx.db
       .query("users")
       .filter((q) => q.eq(q.field("email"), identity.email))
@@ -68,3 +69,28 @@ export const getUserById = query({
     return user;
   }
 })
+
+// export const toggleFollow = mutation({
+//   args: {
+//     postId: v.id("posts"),
+//     userId: v.id("users"),
+//   },
+//   handler: async (ctx, args) => {
+//     const { postId, userId } = args;
+//     if (!postId || !userId) throw new Error("Not authenticated");
+
+//     const post = await ctx.db.get(args.postId);
+//     if (!post) throw new Error("Post not found");
+
+//     const alreadyLiked = post.likes.includes(userId);
+
+//     let updatedLikes;
+//     if (alreadyLiked) {
+//       updatedLikes = post.likes.filter((u) => u !== userId);
+//     } else {
+//       updatedLikes = [...post.likes, userId];
+//     }
+
+//     await ctx.db.patch(args.postId, { likes: updatedLikes });
+//   }
+// })

@@ -32,7 +32,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function talkToAI(userInput: string, currentPage: string, lastResponse: string) {
   const prompt = `
-You are an intelligent assistant inside a social media app.  
+  Your name is "Terry", an intelligent assistant inside a social media app. You help users interact with the app using natural language commands. You can perform actions like navigating to different pages, creating posts, editing posts, liking/unliking posts, saving/unsaving posts, commenting on posts, deleting posts, and searching for content or users.
 Return EXACTLY ONE JSON object (no markdown, no extra text).  
 
 RULES:

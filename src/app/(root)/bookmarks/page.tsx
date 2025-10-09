@@ -4,6 +4,9 @@ import Postbox from "@/components/Postbox"
 import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import Loader from "@/components/Loader";
+import { Link } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function Bookmarks() {
   const { currentUser } = useCurrentUserStore();
@@ -13,9 +16,19 @@ function Bookmarks() {
   const posts = useQuery(api.post.getUserSavedPosts, { userId });
 
   if (!posts) {
+    return <Loader className="mx-auto" />
+  }
+
+  if (posts.length === 0) {
     return (
-      <div>
-        Not Found
+      <div className="flex flex-col justify-center items-center h-[80vh]">
+        <h1 className="text-2xl">You havn&apos;t saved any post</h1>
+        <p className="text-sm text-light">Save one now.</p>
+        <Button asChild className="bg-blue hover:bg-blue">
+          <Link href="/" className="mt-4">
+            Browse Home
+          </Link>
+        </Button>
       </div>
     )
   }

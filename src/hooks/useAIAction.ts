@@ -2,9 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import usePostStore from "@/stores/usePostStore";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -16,7 +14,7 @@ import { toast } from "sonner";
 let isGloballyProcessing = false;
 let lastGlobalTranscript = "";
 
-export function useAIAction() {
+function useAIAction() {
   const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -35,44 +33,45 @@ export function useAIAction() {
   const handleComment = useMutation(api.post.comment);
   const handleDeletePost = useMutation(api.post.deletePost)
 
-  const speak = (text: string) => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-
-      aiIsSpeakingRef.current = true;
-      SpeechRecognition.stopListening()
-
-      async function simulateSpeech(text: string, delay = 380) {
-        const words = `Speaking this text: ${text}`.split(" ");
-        for (let i = 0; i < words.length; i++) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-        }
-
-        if (aiIsSpeakingRef.current) {
-          aiIsSpeakingRef.current = false;
-          if (mode) {
-            SpeechRecognition.startListening({ continuous: true, language: "en-US" });
-          }
-        }
-      }
-
-      simulateSpeech(text);
-
-      speechSynthesis.speak(utterance);
-
-      utterance.onend = () => {
-        aiIsSpeakingRef.current = false;
-        if (mode) {
-          SpeechRecognition.startListening({ continuous: true, language: "en-US" });
-        }
-      };
-
-    }
-  }
 
   const runAI = useCallback(
     async (textInput: string) => {
+      const speak = (text: string) => {
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "en-US";
+
+          aiIsSpeakingRef.current = true;
+          SpeechRecognition.stopListening()
+
+          async function simulateSpeech(text: string, delay = 380) {
+            const words = `Speaking this text: ${text}`.split(" ");
+            for (let i = 0; i < words.length; i++) {
+              await new Promise(resolve => setTimeout(resolve, delay));
+            }
+
+            if (aiIsSpeakingRef.current) {
+              aiIsSpeakingRef.current = false;
+              if (mode) {
+                SpeechRecognition.startListening({ continuous: true, language: "en-US" });
+              }
+            }
+          }
+
+          simulateSpeech(text);
+
+          speechSynthesis.speak(utterance);
+
+          utterance.onend = () => {
+            aiIsSpeakingRef.current = false;
+            if (mode) {
+              SpeechRecognition.startListening({ continuous: true, language: "en-US" });
+            }
+          };
+
+        }
+      }
+
       if (!textInput) {
         speak("Please provide an input!");
         return { response: "Please provide an input!" };
@@ -242,7 +241,6 @@ export function useAIAction() {
         }
 
         setLastResponse(parsed);
-        // resetTranscript();
         return parsed;
       } catch (error) {
         console.error("AI action failed", error);
@@ -261,7 +259,7 @@ export function useAIAction() {
         }, 1000);
       }
     },
-    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, speak, currentUser, post, setPost, lastResponse]
+    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse]
   );
 
   const startListening = () =>
@@ -309,3 +307,5 @@ export function useAIAction() {
     resetTranscript
   };
 }
+
+export default useAIAction;

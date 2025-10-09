@@ -1,6 +1,6 @@
 "use client";
 
-import { useAIAction } from "@/hooks/useAIAction";
+import useAIAction from "@/hooks/useAIAction";
 import { motion } from "framer-motion";
 import { Bot } from "lucide-react";
 import { usePathname } from "next/navigation";

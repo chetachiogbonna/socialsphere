@@ -2,7 +2,7 @@
 
 import Logo from "./Logo";
 import { UserButton } from "@clerk/nextjs";
-import { useAIAction } from "@/hooks/useAIAction";
+import useAIAction from "@/hooks/useAIAction";
 import { motion, AnimatePresence } from "framer-motion";
 import RobotIcon from "./RobotIcon";
 import { usePathname } from "next/navigation";
