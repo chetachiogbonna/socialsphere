@@ -41,7 +41,6 @@ function PostDetails() {
   return (
     <section className="max-w-3xl mx-auto py-8 px-4">
       <Card className="bg-[#0a0a0a] text-white border border-neutral-800 rounded-2xl overflow-hidden shadow-md py-3 gap-2">
-        {/* HEADER */}
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <div className="flex flex-row items-center gap-3">
             <Avatar>
@@ -66,9 +65,7 @@ function PostDetails() {
               >
                 <Edit color="#A23AF9" size={18} className="text-primary" />
               </Link>
-              {/* <Button variant="ghost" size="icon"> */}
               <Trash size={18} className="text-red-500" />
-              {/* </Button> */}
             </div>
           )}
         </CardHeader>

@@ -1,12 +1,12 @@
 "use client";
 
-import Postbox from "@/components/Postbox"
-import useCurrentUserStore from "@/stores/useCurrentUserStore";
+import Postbox from "@/components/Postbox";
 import { useQuery } from "convex/react";
+import { Bookmark, Home } from "lucide-react";
 import { api } from "../../../../convex/_generated/api";
+import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import Loader from "@/components/Loader";
-import { Link } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 function Bookmarks() {
   const { currentUser } = useCurrentUserStore();
@@ -21,29 +21,42 @@ function Bookmarks() {
 
   if (posts.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center h-[80vh]">
-        <h1 className="text-2xl">You havn&apos;t saved any post</h1>
-        <p className="text-sm text-light">Save one now.</p>
-        <Button asChild className="bg-blue hover:bg-blue">
-          <Link href="/" className="mt-4">
+      <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[60%] max-sm:last:mb-14 pb-20">
+        <div id="scroll-title" className="scroll-m-10" />
+
+        <div className="mb-6 flex gap-1 items-center">
+          <Bookmark className="w-10 h-10 text-gray-700" />
+          <h2 className="text-2xl font-medium">Bookmarks</h2>
+        </div>
+
+        <div className="flex flex-col justify-center items-center py-20 bg-gray-50 rounded-lg">
+          <Bookmark className="w-16 h-16 text-gray-300 mb-4" />
+          <h1 className="text-xl font-semibold mb-2">You haven&apos;t saved any post</h1>
+          <p className="text-sm text-gray-500 mb-6">Save one now.</p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+          >
+            <Home className="w-4 h-4" />
             Browse Home
           </Link>
-        </Button>
-      </div>
-    )
+        </div>
+      </section>
+    );
   }
 
   return (
-    <>
-      <h1 className="px-2 pb-8">Bookmarks</h1>
+    <section className="pt-3 pb-20 max-w-5xl mx-auto px-4">
+      <div className="mb-6 flex gap-1 items-center">
+        <Bookmark className="w-10 h-10 text-gray-700" />
+        <h2 className="text-2xl font-medium">Bookmarks</h2>
+      </div>
 
-      <section className="flex justify-center items-center pb-20 px-2">
-        <div className="grid xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full mx-auto">
-          {posts?.map(post => <Postbox key={post._id} post={post} />)}
-        </div>
-      </section>
-    </>
-  )
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {posts?.map(post => <Postbox key={post._id} post={post} />)}
+      </div>
+    </section>
+  );
 }
 
-export default Bookmarks
+export default Bookmarks;

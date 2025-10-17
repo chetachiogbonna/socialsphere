@@ -30,6 +30,8 @@ export interface Post {
     username: string
     profileImage: string
     clerkId: string
+    firstName: string
+    lastName: string
   }
 }
 

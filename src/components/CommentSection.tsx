@@ -46,7 +46,6 @@ function CommentSection({ post }: { post: Post }) {
 
   return (
     <div className="w-full flex flex-col gap-4">
-      {/* Comments list */}
       <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto p-2 border border-neutral-800 rounded-lg">
         {post.comments && post.comments.length > 0 ? (
           pathname === "/"
@@ -97,7 +96,6 @@ function CommentSection({ post }: { post: Post }) {
         )}
       </div>
 
-      {/* Input */}
       <form
         onSubmit={handleSubmit}
         className="w-full flex items-center gap-3 border-t border-neutral-800 pt-3"

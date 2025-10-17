@@ -86,7 +86,9 @@ export const getPostById = query({
         user: {
           username: postOwner?.username!,
           profileImage: postOwner?.profile_pic!,
-          clerkId: postOwner?.clerk_userId!
+          clerkId: postOwner?.clerk_userId!,
+          firstName: postOwner?.first_name!,
+          lastName: postOwner?.last_name!
         }
       }
 
@@ -182,7 +184,9 @@ export const getUserSavedPosts = query({
           user: {
             username: postOwner?.username!,
             profileImage: postOwner?.profile_pic!,
-            clerkId: postOwner?.clerk_userId!
+            clerkId: postOwner?.clerk_userId!,
+            firstName: postOwner?.first_name!,
+            lastName: postOwner?.last_name!
           }
         });
       }
@@ -220,7 +224,9 @@ export const search = query({
           user: {
             username: user.username,
             profileImage: user.profile_pic,
-            clerkId: user.clerk_userId
+            clerkId: user.clerk_userId,
+            firstName: user.first_name,
+            lastName: user.last_name
           }
         });
       }
