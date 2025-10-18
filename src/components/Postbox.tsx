@@ -23,7 +23,7 @@ function Postbox({ post }: { post: Post }) {
           height={40}
         />
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">
+          <p className="font-semibold text-sm truncate text-gray-200">
             {post.user.firstName} {post.user.lastName}
           </p>
           <p className="text-xs text-gray-500 text-nowrap">@{post.user.username} · {timeAgo(post._creationTime)}</p>

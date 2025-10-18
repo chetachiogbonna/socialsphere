@@ -9,6 +9,10 @@ export interface User {
   username: string;
   email: string;
   profile_pic: string;
+  bio: string;
+  followers: Id<"users">[];
+  following: Id<"users">[];
+  cover_photo: string;
 }
 
 export interface Post {

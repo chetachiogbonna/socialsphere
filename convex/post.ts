@@ -59,7 +59,9 @@ export const getAllPosts = query({
           user: {
             username: postOwner?.username!,
             profileImage: postOwner?.profile_pic!,
-            clerkId: postOwner?.clerk_userId!
+            clerkId: postOwner?.clerk_userId!,
+            firstName: postOwner?.first_name!,
+            lastName: postOwner?.last_name!
           }
         };
       })
@@ -68,6 +70,36 @@ export const getAllPosts = query({
     return postsWithUser.reverse() as Post[];
   }
 })
+
+export const getPostsByUser = query({
+  args: {
+    userId: v.optional(v.id("users")),
+  },
+  handler: async (ctx, args) => {
+    if (!args.userId) return
+
+    const posts = await ctx.db.query("posts").filter(q => q.eq(q.field("ownerId"), args.userId)).collect();
+
+    const postsWithUser = await Promise.all(
+      posts.map(async (post) => {
+        const postOwner = await ctx.db.get(post.ownerId);
+
+        return {
+          ...post,
+          user: {
+            username: postOwner?.username!,
+            profileImage: postOwner?.profile_pic!,
+            clerkId: postOwner?.clerk_userId!,
+            firstName: postOwner?.first_name!,
+            lastName: postOwner?.last_name!
+          }
+        };
+      })
+    );
+
+    return postsWithUser.reverse() as Post[];
+  }
+});
 
 export const getPostById = query({
   args: {
@@ -165,6 +197,35 @@ export const comment = mutation({
   }
 })
 
+export const getUserLikedPosts = query({
+  args: {
+    userId: v.optional(v.id("users")),
+  },
+  handler: async (ctx, { userId }) => {
+    if (!userId) return;
+    const posts = await ctx.db.query("posts").collect();
+
+    const postsWithUser: Post[] = [];
+    for (const post of posts) {
+      if (post.likes?.includes(userId)) {
+        const postOwner = await ctx.db.get(post.ownerId);
+        postsWithUser.push({
+          ...post,
+          user: {
+            username: postOwner?.username!,
+            profileImage: postOwner?.profile_pic!,
+            clerkId: postOwner?.clerk_userId!,
+            firstName: postOwner?.first_name!,
+            lastName: postOwner?.last_name!
+          }
+        });
+      }
+    }
+
+    return postsWithUser;
+  }
+});
+
 export const getUserSavedPosts = query({
   args: {
     userId: v.optional(v.id("users")),
@@ -196,7 +257,6 @@ export const getUserSavedPosts = query({
   },
 });
 
-
 export const deletePost = mutation({
   args: {
     postId: v.id("posts"),
@@ -212,7 +272,7 @@ export const search = query({
   },
   handler: async (ctx, args) => {
     const searchTerm = args.searchTerm.trim().toLowerCase();
-    // Search posts
+
     const searchedPosts = await ctx.db.query("posts").withSearchIndex("byTitle", q => q.search("title", searchTerm)).collect();
     const searchedPostWithUsers: Post[] = [];
 

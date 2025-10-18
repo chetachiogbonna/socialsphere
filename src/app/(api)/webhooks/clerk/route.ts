@@ -28,16 +28,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "success" }, { status: 200 });
     }
 
-    // if (evt.type === "user.updated") {
-    //   await convex.mutation(api.user.updateUser, {
-    //     clerk_userId: evt.data.id!,
-    //     first_name: evt.data.first_name!,
-    //     last_name: evt.data.last_name!,
-    //     username: evt.data.username!,
-    //     email: evt.data.email_addresses[0].email_address,
-    //     updated_at: evt.data.updated_at
-    //   })
-    // }
+    if (evt.type === "user.updated") {
+      await convex.mutation(api.user.updateUser, {
+        clerk_userId: evt.data.id!,
+        first_name: evt.data.first_name!,
+        last_name: evt.data.last_name!,
+        username: evt.data.username!,
+        email: evt.data.email_addresses[0].email_address,
+        profile_pic: evt.data.image_url!
+      })
+    }
 
     return NextResponse.json({ error: "Invalid webhook" }, { status: 400 });
   } catch (err) {
