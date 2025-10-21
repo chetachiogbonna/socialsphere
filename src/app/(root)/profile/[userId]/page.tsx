@@ -1,20 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
-import { MapPin, Calendar, Link2, Edit, Settings, Mail, Bookmark, Grid, Heart } from "lucide-react";
+import { Calendar, Edit, Grid, Heart } from "lucide-react";
 import Image from "next/image";
 import EditProfileModal from "@/components/EditProfileModal";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { Id } from "../../../../convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { Id } from "../../../../../convex/_generated/dataModel";
 import Loader from "@/components/Loader";
 import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import { Post } from "@/types";
 import PostStats from "@/components/PostStats";
+import { useParams } from "next/navigation";
 
-// This would come from your database (Convex)
 interface UserMetadata {
   bio?: string;
   location?: string;
@@ -25,16 +24,7 @@ interface UserMetadata {
   postsCount?: number;
 }
 
-// Simple Postbox component
 function Postbox({ post }: { post: Post }) {
-  const timeAgo = (timestamp: number) => {
-    const seconds = Math.floor((Date.now() - timestamp) / 1000);
-    if (seconds < 60) return `${seconds}s ago`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    return `${Math.floor(seconds / 86400)}d ago`;
-  };
-
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-gray-600 transition-all h-max">
       <p className="text-sm text-gray-200 mb-3">{post.title}</p>
@@ -53,11 +43,9 @@ function Postbox({ post }: { post: Post }) {
   );
 }
 
-interface ProfileProps {
-  userId?: string;
-}
+function Profile() {
+  const { userId } = useParams();
 
-function Profile({ userId }: ProfileProps) {
   const { currentUser } = useCurrentUserStore();
   const [activeTab, setActiveTab] = useState<"posts" | "liked">("posts");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -70,20 +58,9 @@ function Profile({ userId }: ProfileProps) {
   });
   // const updateProfile = useMutation(api.user.updateProfile);
 
-  // Mock data - replace with actual Convex queries
-  const userMetadata: UserMetadata = {
-    bio: "Designer & Creative | Building beautiful digital experiences ✨",
-    location: "San Francisco, CA",
-    website: "sarahjohnson.com",
-    coverPhoto: "/assets/images/side-image.jpg",
-    followers: 1234,
-    following: 567,
-    postsCount: 89,
-  };
-
   const isOwnProfile = !userId || userId === currentUser?._id;
 
-  const handleSaveProfile = async (data: any) => {
+  const handleSaveProfile = async () => {
     if (!currentUser) return;
 
     // Uncomment when you have Convex mutation set up:
@@ -92,7 +69,6 @@ function Profile({ userId }: ProfileProps) {
     //   ...data,
     // });
 
-    console.log("Saving profile data:", data);
   };
 
   if (!currentUser) {
@@ -113,9 +89,9 @@ function Profile({ userId }: ProfileProps) {
       <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[70%] max-sm:last:mb-14 pb-20 min-h-screen">
         {/* Cover Photo */}
         <div className="relative bg-gray-800 rounded-lg overflow-hidden h-48 md:h-56">
-          {userMetadata.coverPhoto ? (
+          {currentUser.cover_photo ? (
             <Image
-              src={userMetadata.coverPhoto}
+              src={currentUser.cover_photo}
               alt="Cover"
               fill
               className="object-cover"
@@ -171,8 +147,8 @@ function Profile({ userId }: ProfileProps) {
                 </div>
               </div>
 
-              {userMetadata.bio && (
-                <p className="text-gray-300 mb-4">{userMetadata.bio}</p>
+              {currentUser.bio && (
+                <p className="text-gray-300 mb-4">{currentUser.bio}</p>
               )}
 
               <div className="flex items-center gap-1 text-sm text-gray-400 mb-4">
@@ -279,11 +255,9 @@ function Profile({ userId }: ProfileProps) {
           firstName: currentUser.first_name,
           lastName: currentUser.last_name,
           username: currentUser.username,
-          imageUrl: currentUser.profile_pic,
-        }}
-        userMetadata={{
-          bio: userMetadata.bio || "",
-          coverPhoto: userMetadata.coverPhoto || "",
+          profilePic: currentUser.profile_pic,
+          coverPhoto: currentUser.cover_photo,
+          bio: currentUser.bio,
         }}
         onSave={handleSaveProfile}
       />

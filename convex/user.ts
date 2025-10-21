@@ -33,8 +33,10 @@ export const createUser = mutation({
       username: args.username,
       email: args.email,
       profile_pic: args.profile_pic,
-      cover_photo: "",
-      bio: "",
+      profile_pic_id: args.profile_pic,
+      cover_photo: undefined,
+      cover_photo_id: undefined,
+      bio: undefined,
       followers: [],
       following: []
     });
@@ -48,7 +50,11 @@ export const updateUser = mutation({
     last_name: v.string(),
     username: v.string(),
     email: v.string(),
-    profile_pic: v.string()
+    profile_pic: v.string(),
+    profile_pic_id: v.optional(v.string()),
+    cover_photo: v.optional(v.string()),
+    cover_photo_id: v.optional(v.string()),
+    bio: v.optional(v.string())
   },
   handler: async (ctx, args) => {
     const user = await ctx.db.query("users").withIndex("byClerkId", q => q.eq("clerk_userId", args.clerk_userId)).first()
@@ -62,7 +68,11 @@ export const updateUser = mutation({
       last_name: args.last_name,
       username: args.username,
       email: args.email,
-      profile_pic: args.profile_pic
+      profile_pic: args.profile_pic,
+      profile_pic_id: args.profile_pic_id || undefined,
+      cover_photo: args.cover_photo || undefined,
+      cover_photo_id: args.cover_photo_id || undefined,
+      bio: args.bio || undefined,
     });
   }
 });

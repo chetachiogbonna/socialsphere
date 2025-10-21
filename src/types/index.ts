@@ -9,10 +9,12 @@ export interface User {
   username: string;
   email: string;
   profile_pic: string;
-  bio: string;
+  profile_pic_id: string | undefined;
+  cover_photo: string | undefined;
+  cover_photo_id: string | undefined;
+  bio: string | undefined;
   followers: Id<"users">[];
   following: Id<"users">[];
-  cover_photo: string;
 }
 
 export interface Post {

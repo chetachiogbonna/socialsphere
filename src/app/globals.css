@@ -147,4 +147,41 @@
     filter: invert(1) sepia(1) saturate(1) hue-rotate(200deg);
   }
 
+  .slide-from-right {
+    animation-name: slide-from-right;
+    animation-timing-function: ease-in-out;
+    animation-duration: 0.5s;
+    transition: transform 1s;
+  }
+
+  .slide-from-left {
+    animation-name: slide-from-left;
+    animation-timing-function: ease-in-out;
+    animation-duration: 0.5s;
+    transition: transform 1s;
+  }
+}
+
+@keyframes slide-from-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-from-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }

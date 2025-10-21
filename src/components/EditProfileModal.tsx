@@ -18,36 +18,38 @@ interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: {
-    firstName?: string;
-    lastName?: string;
-    username?: string;
-    imageUrl: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+    profilePic: string;
+    coverPhoto: string | undefined;
+    bio: string | undefined;
   };
-  userMetadata: {
-    bio?: string;
-    location?: string;
-    website?: string;
-    coverPhoto?: string;
-  };
-  onSave: (data: any) => Promise<void>;
+  onSave: (data: {
+    firstName: string;
+    lastName: string;
+    username: string;
+    bio: string;
+    profilePic: string;
+    coverPhoto: string;
+  }) => Promise<void>;
 }
 
 function EditProfileModal({
   isOpen,
   onClose,
   user,
-  userMetadata,
   onSave
 }: EditProfileModalProps) {
   const [formData, setFormData] = useState({
     firstName: user.firstName || "",
     lastName: user.lastName || "",
     username: user.username || "",
-    bio: userMetadata.bio || ""
+    bio: user.bio || ""
   });
 
-  const [profileImage, setProfileImage] = useState(user.imageUrl);
-  const [coverImage, setCoverImage] = useState(userMetadata.coverPhoto || "");
+  const [profilePic, setProfilePic] = useState(user.profilePic);
+  const [coverPhoto, setCoverPhoto] = useState(user.coverPhoto || "");
   const [isLoading, setIsLoading] = useState(false);
 
   const profileInputRef = useRef<HTMLInputElement>(null);
@@ -62,23 +64,23 @@ function EditProfileModal({
     });
   };
 
-  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleprofilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileImage(reader.result as string);
+        setProfilePic(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlecoverPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setCoverImage(reader.result as string);
+        setCoverPhoto(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -89,8 +91,8 @@ function EditProfileModal({
     try {
       await onSave({
         ...formData,
-        profileImage,
-        coverImage,
+        profilePic,
+        coverPhoto,
       });
       onClose();
     } catch (error) {
@@ -111,9 +113,9 @@ function EditProfileModal({
           <div className="space-y-2">
             <Label htmlFor="cover-photo">Cover Photo</Label>
             <div className="relative h-40 bg-gray-800 rounded-lg overflow-hidden group">
-              {coverImage ? (
+              {coverPhoto ? (
                 <Image
-                  src={coverImage}
+                  src={coverPhoto}
                   alt="Cover"
                   fill
                   className="object-cover"
@@ -135,7 +137,7 @@ function EditProfileModal({
                 ref={coverInputRef}
                 type="file"
                 accept="image/*"
-                onChange={handleCoverImageChange}
+                onChange={handlecoverPhotoChange}
                 className="hidden"
               />
             </div>
@@ -146,7 +148,7 @@ function EditProfileModal({
             <div className="flex items-center gap-4">
               <div className="relative group">
                 <Image
-                  src={profileImage}
+                  src={profilePic}
                   alt="Profile"
                   width={96}
                   height={96}
@@ -163,7 +165,7 @@ function EditProfileModal({
                   ref={profileInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={handleProfileImageChange}
+                  onChange={handleprofilePicChange}
                   className="hidden"
                 />
               </div>

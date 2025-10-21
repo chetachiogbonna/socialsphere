@@ -13,13 +13,17 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import { set } from "zod";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { uploadImage } from "@/lib/utils";
+import { Id } from "../../convex/_generated/dataModel";
+import useCurrentUserStore from "@/stores/useCurrentUserStore";
+import { User } from "@/types";
 
 interface OnboardingModalProps {
   isOpen: boolean;
-  user: {
-    imageUrl: string;
-    bio: string | undefined;
-  }
+  user: User
 }
 
 function OnboardingModal({
@@ -27,50 +31,52 @@ function OnboardingModal({
   user,
 }: OnboardingModalProps) {
   const [step, setStep] = useState(1);
-  const [profileImage, setProfileImage] = useState(user.imageUrl);
-  const [coverPhoto, setCoverPhoto] = useState("");
+  const [profileImage, setProfileImage] = useState(null as File | null);
+  const [coverPhoto, setCoverPhoto] = useState(null as File | null);
   const [bio, setBio] = useState(user.bio);
   const [isLoading, setIsLoading] = useState(false);
+  const [direction, setDirection] = useState<"left" | "right">("right");
+
+  const { currentUser } = useCurrentUserStore()
 
   const profileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
+  const generateUploadUrl = useMutation(api.storage.generateUploadUrl)
+  const getImageUrl = useMutation(api.storage.getImageUrl)
+  const updateUser = useMutation(api.user.updateUser)
+
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setProfileImage(file);
     }
   };
 
   const handleCoverPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverPhoto(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setCoverPhoto(file);
     }
   };
 
   const handleNext = () => {
     if (step < 3) {
+      setDirection("right")
       setStep(step + 1);
     }
   };
 
   const handleBack = () => {
     if (step > 1) {
+      setDirection("left");
       setStep(step - 1);
     }
   };
 
   const handleSkip = () => {
     if (step < 3) {
+      setDirection("right")
       setStep(step + 1);
     } else {
       handleComplete();
@@ -79,8 +85,46 @@ function OnboardingModal({
 
   const handleComplete = async () => {
     setIsLoading(true);
-    try {
 
+    if (!bio) return;
+
+    try {
+      const url = await generateUploadUrl();
+
+      let profileImageId: null | string = null
+      let coverPhotoId: null | string = null
+
+      const uploadProfileImage = async () => {
+        if (!profileImage) return;
+
+        profileImageId = await uploadImage(url, profileImage)
+        return await getImageUrl({ storageId: profileImageId as Id<"_storage"> })
+      }
+
+      const uploadCoverImage = async () => {
+        if (!coverPhoto) return;
+
+        coverPhotoId = await uploadImage(url, coverPhoto)
+        return await getImageUrl({ storageId: coverPhotoId as Id<"_storage"> })
+      }
+
+      const [profilePicUrl, coverPhotoUrl] = await Promise.all([
+        uploadProfileImage(),
+        uploadCoverImage()
+      ])
+
+      await updateUser({
+        clerk_userId: user.clerk_userId,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        username: user.username,
+        email: user.email,
+        profile_pic: profilePicUrl || user.profile_pic,
+        profile_pic_id: profileImageId || undefined,
+        cover_photo: coverPhotoUrl || undefined,
+        cover_photo_id: coverPhotoId || undefined,
+        bio: bio,
+      })
     } catch (error) {
       console.error("Error completing onboarding:", error);
     } finally {
@@ -105,7 +149,6 @@ function OnboardingModal({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Progress Indicator */}
         <div className="flex items-center justify-center gap-2 my-2">
           {[1, 2, 3].map((s) => (
             <div
@@ -116,10 +159,9 @@ function OnboardingModal({
           ))}
         </div>
 
-        <div className="">
-          {/* Step 1: Profile Picture */}
+        <div className="overflow-hidden">
           {step === 1 && (
-            <div className="space-y-4 text-center">
+            <div className={`space-y-6 text-center slide-from-${direction}`}>
               <div>
                 <h3 className="text-xl font-semibold mb-2">
                   Upload Your Profile Picture
@@ -132,7 +174,7 @@ function OnboardingModal({
               <div className="flex flex-col items-center gap-6">
                 <div className="relative group">
                   <Image
-                    src={profileImage}
+                    src={profileImage ? URL.createObjectURL(profileImage) : user.profile_pic}
                     alt="Profile"
                     width={160}
                     height={160}
@@ -170,9 +212,8 @@ function OnboardingModal({
             </div>
           )}
 
-          {/* Step 2: Cover Photo */}
           {step === 2 && (
-            <div className="space-y-6">
+            <div className={`space-y-6 text-center slide-from-${direction}`}>
               <div className="text-center">
                 <h3 className="text-xl font-semibold mb-2">
                   Add a Cover Photo
@@ -185,7 +226,7 @@ function OnboardingModal({
               <div className="relative h-48 bg-gray-800 rounded-lg overflow-hidden group">
                 {coverPhoto ? (
                   <Image
-                    src={coverPhoto}
+                    src={URL.createObjectURL(coverPhoto || new Blob())}
                     alt="Cover"
                     fill
                     className="object-cover"
@@ -231,9 +272,8 @@ function OnboardingModal({
             </div>
           )}
 
-          {/* Step 3: Bio */}
           {step === 3 && (
-            <div className="space-y-6">
+            <div className={`space-y-6 text-center slide-from-${direction}`}>
               <div className="text-center">
                 <h3 className="text-xl font-semibold mb-2">Tell Us About Yourself</h3>
                 <p className="text-sm text-gray-400">
@@ -268,7 +308,6 @@ function OnboardingModal({
           )}
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-700">
           <div>
             {step > 1 && (

@@ -19,12 +19,15 @@ export default function RootLayout({
 
   useEffect(() => {
     if (currentUser) {
+      console.log(currentUser._id)
       setCurrentUser({
         ...currentUser,
-        bio: currentUser.bio || "",
-        cover_photo: currentUser.cover_photo || "",
+        profile_pic_id: currentUser.profile_pic_id || undefined,
+        cover_photo: currentUser.cover_photo || undefined,
+        cover_photo_id: currentUser.profile_pic_id || undefined,
+        bio: currentUser.bio || undefined,
         followers: currentUser.followers || [],
-        following: currentUser.following || [],
+        following: currentUser.following || []
       });
     }
   }, [currentUser, setCurrentUser]);
@@ -34,8 +37,13 @@ export default function RootLayout({
       <OnboardingModal
         isOpen={true}
         user={{
-          imageUrl: currentUser.profile_pic,
-          bio: currentUser.bio
+          ...currentUser,
+          profile_pic_id: currentUser.profile_pic_id || undefined,
+          cover_photo: currentUser.cover_photo || undefined,
+          cover_photo_id: currentUser.profile_pic_id || undefined,
+          bio: currentUser.bio || undefined,
+          followers: currentUser.followers || [],
+          following: currentUser.following || []
         }}
       />
     )
