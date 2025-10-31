@@ -16,7 +16,7 @@ import { Trash } from "lucide-react"
 import { api } from "../../convex/_generated/api"
 import { Id } from "../../convex/_generated/dataModel";
 
-function DeletePostAlert({ postId }: { postId: Id<"posts"> }) {
+function DeletePostAlert({ postId, postImageId }: { postId: Id<"posts">, postImageId: string }) {
   const deletePost = useMutation(api.post.deletePost)
 
   return (
@@ -36,7 +36,7 @@ function DeletePostAlert({ postId }: { postId: Id<"posts"> }) {
           <AlertDialogCancel className="border border-light cursor-pointer">Cancel</AlertDialogCancel>
           <AlertDialogAction
             className="cursor-pointer"
-            onClick={() => deletePost({ postId })}
+            onClick={() => deletePost({ postId, imageId: postImageId as Id<"_storage"> })}
           >
             Continue
           </AlertDialogAction>

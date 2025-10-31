@@ -260,9 +260,13 @@ export const getUserSavedPosts = query({
 export const deletePost = mutation({
   args: {
     postId: v.id("posts"),
+    imageId: v.id("_storage"),
   },
   handler: async (ctx, args) => {
-    await ctx.db.delete(args.postId);
+    await Promise.all([
+      ctx.db.delete(args.postId),
+      ctx.storage.delete(args.imageId)
+    ])
   }
 })
 

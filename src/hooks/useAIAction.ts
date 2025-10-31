@@ -175,7 +175,10 @@ function useAIAction() {
                 return;
               }
 
-              handleDeletePost({ postId: currentViewingPost._id })
+              handleDeletePost({
+                postId: currentViewingPost._id,
+                imageId: currentViewingPost.imageId as Id<"_storage">
+              })
               break;
           }
         }

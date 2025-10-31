@@ -14,21 +14,10 @@ import { Post } from "@/types";
 import PostStats from "@/components/PostStats";
 import { useParams } from "next/navigation";
 
-interface UserMetadata {
-  bio?: string;
-  location?: string;
-  website?: string;
-  coverPhoto?: string;
-  followers?: number;
-  following?: number;
-  postsCount?: number;
-}
-
 function Postbox({ post }: { post: Post }) {
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-gray-600 transition-all h-max">
       <p className="text-sm text-gray-200 mb-3">{post.title}</p>
-
 
       <Image
         src={post.imageUrl}
@@ -56,20 +45,8 @@ function Profile() {
   const userLikedPosts = useQuery(api.post.getUserLikedPosts, {
     userId: (userId || currentUser?._id) as Id<"users">
   });
-  // const updateProfile = useMutation(api.user.updateProfile);
 
-  const isOwnProfile = !userId || userId === currentUser?._id;
-
-  const handleSaveProfile = async () => {
-    if (!currentUser) return;
-
-    // Uncomment when you have Convex mutation set up:
-    // await updateProfile({
-    //   userId: user.id,
-    //   ...data,
-    // });
-
-  };
+  const isOwnProfile = userId === currentUser?._id;
 
   if (!currentUser) {
     return (
@@ -87,7 +64,6 @@ function Profile() {
   return (
     <>
       <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[70%] max-sm:last:mb-14 pb-20 min-h-screen">
-        {/* Cover Photo */}
         <div className="relative bg-gray-800 rounded-lg overflow-hidden h-48 md:h-56">
           {currentUser.cover_photo ? (
             <Image
@@ -204,7 +180,7 @@ function Profile() {
             {activeTab === "posts" && (
               <>
                 {!userPosts
-                  ? <Loader />
+                  ? <Loader className="mx-auto" />
                   : (
                     <>
                       {userPosts.length > 0 ? (
@@ -226,7 +202,7 @@ function Profile() {
             {activeTab === "liked" && (
               <>
                 {!userLikedPosts
-                  ? <Loader />
+                  ? <Loader className="mx-auto" />
                   : (
                     <>
                       {userLikedPosts.length > 0 ? (
@@ -258,8 +234,11 @@ function Profile() {
           profilePic: currentUser.profile_pic,
           coverPhoto: currentUser.cover_photo,
           bio: currentUser.bio,
+          clerk_userId: currentUser.clerk_userId,
+          email: currentUser.email,
+          profilePicId: currentUser.profile_pic_id,
+          coverPhotoId: currentUser.cover_photo_id
         }}
-        onSave={handleSaveProfile}
       />
     </>
   );

@@ -6,21 +6,44 @@ import useAIAction from "@/hooks/useAIAction";
 import { motion, AnimatePresence } from "framer-motion";
 import RobotIcon from "./RobotIcon";
 import { usePathname } from "next/navigation";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import useCurrentUserStore from "@/stores/useCurrentUserStore";
+import Link from "next/link";
 
 function Header() {
   const pathname = usePathname()
   const { transcript, listening } = useAIAction();
+  const { currentUser } = useCurrentUserStore()
 
   const mode = typeof window !== "undefined" && JSON.parse(window?.localStorage?.getItem("lazy-mode") ?? "true")
 
   return (
     <>
-      <header className="bg-[#1A1A1A] z-10000 h-[60px] mb-4 fixed top-0 right-0 left-0 shadow-md">
+      <header className="bg-[#1A1A1A] z-50 h-[60px] mb-4 fixed top-0 right-0 left-0 shadow-md">
         <div className="max-w-screen-2xl mx-auto flex justify-between items-center px-4">
           <Logo />
 
           <div className="flex items-center gap-3">
-            <UserButton />
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <UserButton />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="z-200 bg-[#404040] border-[#3B3C3C] text-[#E9E9E9]">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-[#262626]" />
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link href={`/profile/${currentUser?._id}`}>
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  Settings
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

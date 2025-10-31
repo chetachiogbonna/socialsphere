@@ -29,7 +29,7 @@ function Bookmarks() {
           <h2 className="text-2xl font-medium">Bookmarks</h2>
         </div>
 
-        <div className="flex flex-col justify-center items-center py-20 bg-gray-50 rounded-lg">
+        <div className="flex flex-col justify-center items-center py-20 rounded-lg">
           <Bookmark className="w-16 h-16 text-gray-300 mb-4" />
           <h1 className="text-xl font-semibold mb-2">You haven&apos;t saved any post</h1>
           <p className="text-sm text-gray-500 mb-6">Save one now.</p>

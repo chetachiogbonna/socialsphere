@@ -123,8 +123,7 @@ function People() {
                   </p>
                   {user.bio && (
                     <p className="text-xs text-gray-400 line-clamp-2 mt-2">
-                      {/* {user.bio} */}
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat, commodi. Commodi id fuga reiciendis optio. Eveniet distinctio quidem non, illum velit minus tenetur, obcaecati optio, architecto atque necessitatibus corrupti quasi.
+                      {user.bio}
                     </p>
                   )}
                 </div>

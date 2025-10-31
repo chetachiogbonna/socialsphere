@@ -29,7 +29,7 @@ const PostCard = forwardRef<HTMLDivElement, {
             alt={post.user.username}
             width={40}
             height={40}
-            className="rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover"
           />
 
           <div>
@@ -61,7 +61,7 @@ const PostCard = forwardRef<HTMLDivElement, {
                   className="cursor-pointer"
                 />
 
-                <DeletePostAlert postId={post._id} />
+                <DeletePostAlert postId={post._id} postImageId={post.imageId} />
               </div>
             )}
         </div>

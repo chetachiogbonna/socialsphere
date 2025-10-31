@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Upload, Camera } from "lucide-react";
 import {
   Dialog,
@@ -13,6 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { uploadImage } from "@/lib/utils";
+import { Id } from "../../convex/_generated/dataModel";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -24,22 +30,17 @@ interface EditProfileModalProps {
     profilePic: string;
     coverPhoto: string | undefined;
     bio: string | undefined;
-  };
-  onSave: (data: {
-    firstName: string;
-    lastName: string;
-    username: string;
-    bio: string;
-    profilePic: string;
-    coverPhoto: string;
-  }) => Promise<void>;
+    clerk_userId: string,
+    email: string,
+    profilePicId: string | undefined,
+    coverPhotoId: string | undefined
+  }
 }
 
 function EditProfileModal({
   isOpen,
   onClose,
-  user,
-  onSave
+  user
 }: EditProfileModalProps) {
   const [formData, setFormData] = useState({
     firstName: user.firstName || "",
@@ -48,12 +49,26 @@ function EditProfileModal({
     bio: user.bio || ""
   });
 
-  const [profilePic, setProfilePic] = useState(user.profilePic);
-  const [coverPhoto, setCoverPhoto] = useState(user.coverPhoto || "");
+  const [profilePic, setProfilePic] = useState(null as File | null);
+  const [coverPhoto, setCoverPhoto] = useState(null as File | null);
   const [isLoading, setIsLoading] = useState(false);
 
   const profileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const router = useRouter()
+
+  const valuesHavntChange = useMemo(() => {
+    return Object.entries({ ...formData, profilePic, coverPhoto }).every(([name, value]) => {
+      return user[name as keyof typeof user] === value ? true : (value === "" || value === null) ? true : false
+
+    })
+  }, [formData, profilePic, coverPhoto, user])
+
+  const generateUploadUrl = useMutation(api.storage.generateUploadUrl)
+  const getImageUrl = useMutation(api.storage.getImageUrl)
+  const updateUser = useMutation(api.user.updateUser)
+  const deleteImage = useMutation(api.storage.deleteById)
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -67,44 +82,92 @@ function EditProfileModal({
   const handleprofilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePic(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setProfilePic(file);
     }
   };
 
   const handlecoverPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverPhoto(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setCoverPhoto(file);
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSaveProfile = async () => {
     setIsLoading(true);
+
     try {
-      await onSave({
-        ...formData,
-        profilePic,
-        coverPhoto,
-      });
+      await Promise.all([
+        (async () => {
+          if (user.profilePicId) {
+            await deleteImage({ imageId: user.profilePicId as Id<"_storage"> })
+          }
+        })(),
+        (async () => {
+          if (user.coverPhotoId) {
+            await deleteImage({ imageId: user.coverPhotoId as Id<"_storage"> })
+          }
+        })()
+      ]);
+
+      const url = await generateUploadUrl();
+
+      let profilePicId: null | string = null
+      let coverPhotoId: null | string = null
+
+      const uploadProfilePic = async () => {
+        if (!profilePic) return;
+
+        profilePicId = await uploadImage(url, profilePic)
+        return await getImageUrl({ storageId: profilePicId as Id<"_storage"> })
+      }
+
+      const uploadCoverPhoto = async () => {
+        if (!coverPhoto) return;
+
+        coverPhotoId = await uploadImage(url, coverPhoto)
+        return await getImageUrl({ storageId: coverPhotoId as Id<"_storage"> })
+      }
+
+      const [profilePicUrl, coverPhotoUrl] = await Promise.all([
+        uploadProfilePic(),
+        uploadCoverPhoto()
+      ]);
+
+      await updateUser({
+        clerk_userId: user.clerk_userId,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        username: formData.username,
+        email: user.email,
+        profile_pic: profilePicUrl || user.profilePic,
+        profile_pic_id: profilePicId || undefined,
+        cover_photo: coverPhotoUrl || undefined,
+        cover_photo_id: coverPhotoId || undefined,
+        bio: formData.bio,
+      })
+
       onClose();
+      router.refresh()
     } catch (error) {
-      console.error("Error saving profile:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "An error occured. Please try again."
+      );
+
+      console.error("Error completing onboarding:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
+      <DialogContent
+        className="max-w-2xl max-h-[80vh] overflow-y-auto bg-gray-900 border-gray-700 text-white"
+        showCloseButton={!isLoading}
+      >
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Edit Profile</DialogTitle>
         </DialogHeader>
@@ -113,9 +176,9 @@ function EditProfileModal({
           <div className="space-y-2">
             <Label htmlFor="cover-photo">Cover Photo</Label>
             <div className="relative h-40 bg-gray-800 rounded-lg overflow-hidden group">
-              {coverPhoto ? (
+              {coverPhoto && user.coverPhoto ? (
                 <Image
-                  src={coverPhoto}
+                  src={coverPhoto ? URL.createObjectURL(coverPhoto) : user.coverPhoto}
                   alt="Cover"
                   fill
                   className="object-cover"
@@ -148,7 +211,7 @@ function EditProfileModal({
             <div className="flex items-center gap-4">
               <div className="relative group">
                 <Image
-                  src={profilePic}
+                  src={profilePic ? URL.createObjectURL(profilePic) : user.profilePic}
                   alt="Profile"
                   width={96}
                   height={96}
@@ -238,14 +301,15 @@ function EditProfileModal({
               type="button"
               variant="outline"
               onClick={onClose}
+              disabled={isLoading}
               className="flex-1 border-gray-600 bg-gray-800 hover:bg-gray-700 text-gray-300"
             >
               Cancel
             </Button>
             <Button
               type="button"
-              onClick={handleSubmit}
-              disabled={isLoading}
+              onClick={handleSaveProfile}
+              disabled={isLoading || valuesHavntChange}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isLoading ? "Saving..." : "Save Changes"}

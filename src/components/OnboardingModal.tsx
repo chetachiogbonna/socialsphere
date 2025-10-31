@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, Camera, ArrowRight, X } from "lucide-react";
+import { Upload, Camera, ArrowRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,13 +13,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
-import { set } from "zod";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { uploadImage } from "@/lib/utils";
 import { Id } from "../../convex/_generated/dataModel";
-import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import { User } from "@/types";
+import { toast } from "sonner";
 
 interface OnboardingModalProps {
   isOpen: boolean;
@@ -36,8 +35,6 @@ function OnboardingModal({
   const [bio, setBio] = useState(user.bio);
   const [isLoading, setIsLoading] = useState(false);
   const [direction, setDirection] = useState<"left" | "right">("right");
-
-  const { currentUser } = useCurrentUserStore()
 
   const profileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -126,6 +123,12 @@ function OnboardingModal({
         bio: bio,
       })
     } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "An error occured. Please try again."
+      );
+
       console.error("Error completing onboarding:", error);
     } finally {
       setIsLoading(false);
@@ -145,7 +148,7 @@ function OnboardingModal({
             Complete Your Profile
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Let's set up your profile in just a few steps
+            Let&apos;s set up your profile in just a few steps
           </DialogDescription>
         </DialogHeader>
 
