@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import useCurrentUserStore from "@/stores/useCurrentUserStore";
-import PeopleSkeletonLoader from "@/components/PeopleSkeletonLoader";
+import PeopleSkeletonLoader from "@/components/skeletons/PeopleSkeletonLoader";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 const mockUsers = [
@@ -116,7 +116,7 @@ function People() {
               <div className="p-6 flex flex-col items-center text-center">
                 <div className="relative mb-4 group">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                  <img
+                  <Image
                     className="relative w-20 h-20 rounded-full border-4 border-white object-cover"
                     src={user.profile_pic}
                     alt={`${user.first_name} ${user.last_name}`}

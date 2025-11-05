@@ -1,7 +1,7 @@
 "use client";
 
 import Logo from "./Logo";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import useAIAction from "@/hooks/useAIAction";
 import { motion, AnimatePresence } from "framer-motion";
 import RobotIcon from "./RobotIcon";
@@ -14,9 +14,6 @@ function Header() {
   const pathname = usePathname()
   const { transcript, listening } = useAIAction();
   const { currentUser } = useCurrentUserStore()
-  const { user } = useUser()
-  console.log(user)
-
   const mode = typeof window !== "undefined" && JSON.parse(window?.localStorage?.getItem("lazy-mode") ?? "true")
 
   return (

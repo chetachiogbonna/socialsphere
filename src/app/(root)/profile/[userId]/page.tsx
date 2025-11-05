@@ -13,6 +13,7 @@ import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import { Post } from "@/types";
 import PostStats from "@/components/PostStats";
 import { useParams } from "next/navigation";
+import ProfileSkeleton from "@/components/skeletons/ProfileSkeleton";
 
 function Postbox({ post }: { post: Post }) {
   return (
@@ -50,14 +51,8 @@ function Profile() {
 
 
   if (!currentUser) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-900">
-        <p className="text-gray-400">Please sign in to view this profile</p>
-      </div>
-    );
+    return <ProfileSkeleton />
   }
-
-  console.log(currentUser)
 
   const joinDate = new Date(currentUser._creationTime || Date.now()).toLocaleDateString('en-US', {
     month: 'long',
