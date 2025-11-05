@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import Image from "next/image";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { uploadImage } from "@/lib/utils";
@@ -68,7 +67,7 @@ function EditProfileModal({
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl)
   const getImageUrl = useMutation(api.storage.getImageUrl)
   const updateUser = useMutation(api.user.updateUser)
-  const deleteImage = useMutation(api.storage.deleteById)
+  // const deleteImage = useMutation(api.storage.deleteById)
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -97,18 +96,18 @@ function EditProfileModal({
     setIsLoading(true);
 
     try {
-      await Promise.all([
-        (async () => {
-          if (user.profilePicId) {
-            await deleteImage({ imageId: user.profilePicId as Id<"_storage"> })
-          }
-        })(),
-        (async () => {
-          if (user.coverPhotoId) {
-            await deleteImage({ imageId: user.coverPhotoId as Id<"_storage"> })
-          }
-        })()
-      ]);
+      // await Promise.all([
+      //   (async () => {
+      //     if (user.profilePicId) {
+      //       await deleteImage({ imageId: user.profilePicId as Id<"_storage"> })
+      //     }
+      //   })(),
+      //   (async () => {
+      //     if (user.coverPhotoId) {
+      //       await deleteImage({ imageId: user.coverPhotoId as Id<"_storage"> })
+      //     }
+      //   })()
+      // ]);
 
       const url = await generateUploadUrl();
 
@@ -176,11 +175,10 @@ function EditProfileModal({
           <div className="space-y-2">
             <Label htmlFor="cover-photo">Cover Photo</Label>
             <div className="relative h-40 bg-gray-800 rounded-lg overflow-hidden group">
-              {coverPhoto && user.coverPhoto ? (
-                <Image
+              {coverPhoto || user.coverPhoto ? (
+                <img
                   src={coverPhoto ? URL.createObjectURL(coverPhoto) : user.coverPhoto}
                   alt="Cover"
-                  fill
                   className="object-cover"
                 />
               ) : (
@@ -210,7 +208,7 @@ function EditProfileModal({
             <Label htmlFor="profile-picture">Profile Picture</Label>
             <div className="flex items-center gap-4">
               <div className="relative group">
-                <Image
+                <img
                   src={profilePic ? URL.createObjectURL(profilePic) : user.profilePic}
                   alt="Profile"
                   width={96}

@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "determined-panda-913.convex.cloud",
         port: "",
-        pathname: "/**",
+        pathname: "/api/storage/**",
       },
       {
         protocol: "https",

@@ -228,7 +228,7 @@ export const getUserLikedPosts = query({
 
 export const getUserSavedPosts = query({
   args: {
-    userId: v.optional(v.id("users")),
+    userId: v.optional(v.id("users"))
   },
   handler: async (ctx, { userId }) => {
     if (!userId) return;

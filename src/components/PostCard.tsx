@@ -24,13 +24,15 @@ const PostCard = forwardRef<HTMLDivElement, {
     <Card ref={ref} data-post={JSON.stringify(post)} className="bg-[#0a0a0a] text-white border border-neutral-800 gap-3 post-card relative">
       <CardHeader className="flex justify-between items-center">
         <div className="flex flex-row items-center gap-3">
-          <Image
-            src={post.user.profileImage}
-            alt={post.user.username}
-            width={40}
-            height={40}
-            className="w-10 h-10 rounded-full object-cover"
-          />
+          <Link href={`/profile/${post.ownerId}`}>
+            <Image
+              src={post.user.profileImage}
+              alt={post.user.username}
+              width={40}
+              height={40}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          </Link>
 
           <div>
             <p className="font-semibold">{post.user?.username}</p>

@@ -48,6 +48,7 @@ function Profile() {
 
   const isOwnProfile = userId === currentUser?._id;
 
+
   if (!currentUser) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-900">
@@ -55,6 +56,8 @@ function Profile() {
       </div>
     );
   }
+
+  console.log(currentUser)
 
   const joinDate = new Date(currentUser._creationTime || Date.now()).toLocaleDateString('en-US', {
     month: 'long',
@@ -66,10 +69,10 @@ function Profile() {
       <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[70%] max-sm:last:mb-14 pb-20 min-h-screen">
         <div className="relative bg-gray-800 rounded-lg overflow-hidden h-48 md:h-56">
           {currentUser.cover_photo ? (
-            <Image
+            <img
               src={currentUser.cover_photo}
               alt="Cover"
-              fill
+              // fill
               className="object-cover"
             />
           ) : (
@@ -80,7 +83,7 @@ function Profile() {
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 -mt-16 relative z-10">
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-shrink-0">
-              <Image
+              <img
                 src={currentUser.profile_pic}
                 alt={currentUser.username || "User"}
                 width={128}

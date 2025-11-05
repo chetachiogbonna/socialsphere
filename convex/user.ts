@@ -92,11 +92,18 @@ export const deleteUser = mutation({
   }
 });
 
-export const getAllUsers = query({
-  args: {},
-  handler: async (ctx) => {
+export const getOtherUsers = query({
+  args: {
+    userId: v.optional(v.id("users"))
+  },
+  handler: async (ctx, args) => {
+    const { userId } = args
+    if (!userId) return;
+
     const allUsers = await ctx.db.query("users").collect()
-    return allUsers;
+    return allUsers
+      .filter((user => user._id !== userId))
+      .map(user => ({ ...user, isFollowing: user.following?.includes(userId) }));
   }
 })
 
@@ -110,27 +117,26 @@ export const getUserById = query({
   }
 })
 
-// export const toggleFollow = mutation({
-//   args: {
-//     postId: v.id("posts"),
-//     userId: v.id("users"),
-//   },
-//   handler: async (ctx, args) => {
-//     const { postId, userId } = args;
-//     if (!postId || !userId) throw new Error("Not authenticated");
+export const toggleFollow = mutation({
+  args: {
+    userId: v.id("users")
+  },
+  handler: async (ctx, args) => {
+    const { userId } = args;
+    if (!userId) return;
 
-//     const post = await ctx.db.get(args.postId);
-//     if (!post) throw new Error("Post not found");
+    const user = await ctx.db.get(args.userId);
+    if (!user) throw new Error("User not found");
 
-//     const alreadyLiked = post.likes.includes(userId);
+    const alreadyFollowing = user.following?.includes(userId);
 
-//     let updatedLikes;
-//     if (alreadyLiked) {
-//       updatedLikes = post.likes.filter((u) => u !== userId);
-//     } else {
-//       updatedLikes = [...post.likes, userId];
-//     }
+    let updatedFollowing;
+    if (alreadyFollowing) {
+      updatedFollowing = user.following?.filter((u) => u !== userId);
+    } else {
+      updatedFollowing = [...(user.following || []), userId];
+    }
 
-//     await ctx.db.patch(args.postId, { likes: updatedLikes });
-//   }
-// })
+    await ctx.db.patch(args.userId, { following: updatedFollowing });
+  }
+})

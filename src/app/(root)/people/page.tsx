@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { Search, UserPlus, UserCheck } from "lucide-react";
 import Image from "next/image";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+import useCurrentUserStore from "@/stores/useCurrentUserStore";
+import PeopleSkeletonLoader from "@/components/PeopleSkeletonLoader";
+import { Id } from "../../../../convex/_generated/dataModel";
 
 const mockUsers = [
   {
@@ -52,13 +57,19 @@ const mockUsers = [
 ];
 
 function People() {
-  const [users, setUsers] = useState(mockUsers);
+  const { currentUser } = useCurrentUserStore();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleFollow = (userId: string) => {
-    setUsers(users.map(user =>
-      user._id === userId ? { ...user, isFollowing: !user.isFollowing } : user
-    ));
+  const userId = currentUser ? currentUser._id : undefined;
+  const users = useQuery(api.user.getOtherUsers, { userId })
+  const toggleFollowMutation = useMutation(api.user.toggleFollow);
+
+  if (!users) {
+    return <PeopleSkeletonLoader count={8} />;
+  }
+
+  const handleFollow = (userId: Id<"users">) => {
+    toggleFollowMutation({ userId });
   };
 
   const filteredUsers = users.filter(user =>
@@ -105,7 +116,7 @@ function People() {
               <div className="p-6 flex flex-col items-center text-center">
                 <div className="relative mb-4 group">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                  <Image
+                  <img
                     className="relative w-20 h-20 rounded-full border-4 border-white object-cover"
                     src={user.profile_pic}
                     alt={`${user.first_name} ${user.last_name}`}
@@ -130,11 +141,11 @@ function People() {
 
                 <div className="flex gap-6 mb-4 text-sm">
                   <div className="text-center">
-                    <p className="font-semibold text-gray-600">{user.followers.toLocaleString()}</p>
+                    <p className="font-semibold text-gray-600">{(user.followers?.length || 0).toLocaleString()}</p>
                     <p className="text-xs text-gray-500">Followers</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-semibold text-gray-600">{user.following.toLocaleString()}</p>
+                    <p className="font-semibold text-gray-600">{(user.following?.length || 0).toLocaleString()}</p>
                     <p className="text-xs text-gray-500">Following</p>
                   </div>
                 </div>

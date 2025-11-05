@@ -1,7 +1,7 @@
 "use client";
 
 import Logo from "./Logo";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import useAIAction from "@/hooks/useAIAction";
 import { motion, AnimatePresence } from "framer-motion";
 import RobotIcon from "./RobotIcon";
@@ -14,6 +14,8 @@ function Header() {
   const pathname = usePathname()
   const { transcript, listening } = useAIAction();
   const { currentUser } = useCurrentUserStore()
+  const { user } = useUser()
+  console.log(user)
 
   const mode = typeof window !== "undefined" && JSON.parse(window?.localStorage?.getItem("lazy-mode") ?? "true")
 
@@ -25,7 +27,7 @@ function Header() {
 
           <div className="flex items-center gap-3">
             <DropdownMenu>
-              <DropdownMenuTrigger>
+              <DropdownMenuTrigger className="mt-3">
                 <UserButton />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="z-200 bg-[#404040] border-[#3B3C3C] text-[#E9E9E9]">
