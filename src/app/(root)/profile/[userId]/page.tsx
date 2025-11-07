@@ -49,7 +49,6 @@ function Profile() {
 
   const isOwnProfile = userId === currentUser?._id;
 
-
   if (!currentUser) {
     return <ProfileSkeleton />
   }
@@ -135,11 +134,11 @@ function Profile() {
                   <span className="font-semibold text-white">{userPosts?.length || 0}</span>
                   <span className="text-gray-400 ml-1">posts</span>
                 </div>
-                <div className="cursor-pointer hover:underline">
+                <div>
                   <span className="font-semibold text-white">{currentUser.followers?.toLocaleString() || 0}</span>
                   <span className="text-gray-400 ml-1">followers</span>
                 </div>
-                <div className="cursor-pointer hover:underline">
+                <div>
                   <span className="font-semibold text-white">{currentUser.following?.toLocaleString() || 0}</span>
                   <span className="text-gray-400 ml-1">following</span>
                 </div>

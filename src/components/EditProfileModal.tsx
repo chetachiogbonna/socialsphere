@@ -67,7 +67,7 @@ function EditProfileModal({
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl)
   const getImageUrl = useMutation(api.storage.getImageUrl)
   const updateUser = useMutation(api.user.updateUser)
-  // const deleteImage = useMutation(api.storage.deleteById)
+  const deleteImage = useMutation(api.storage.deleteById)
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -96,18 +96,14 @@ function EditProfileModal({
     setIsLoading(true);
 
     try {
-      // await Promise.all([
-      //   (async () => {
-      //     if (user.profilePicId) {
-      //       await deleteImage({ imageId: user.profilePicId as Id<"_storage"> })
-      //     }
-      //   })(),
-      //   (async () => {
-      //     if (user.coverPhotoId) {
-      //       await deleteImage({ imageId: user.coverPhotoId as Id<"_storage"> })
-      //     }
-      //   })()
-      // ]);
+      await Promise.all([
+        user.profilePicId && profilePic
+          ? deleteImage({ imageId: user.profilePicId as Id<"_storage"> })
+          : Promise.resolve(),
+        user.coverPhotoId && user.coverPhoto && coverPhoto
+          ? deleteImage({ imageId: user.coverPhotoId as Id<"_storage"> })
+          : Promise.resolve()
+      ])
 
       const url = await generateUploadUrl();
 
@@ -140,10 +136,10 @@ function EditProfileModal({
         username: formData.username,
         email: user.email,
         profile_pic: profilePicUrl || user.profilePic,
-        profile_pic_id: profilePicId || undefined,
-        cover_photo: coverPhotoUrl || undefined,
-        cover_photo_id: coverPhotoId || undefined,
-        bio: formData.bio,
+        profile_pic_id: profilePicId || user.profilePicId,
+        cover_photo: coverPhotoUrl || user.coverPhoto,
+        cover_photo_id: coverPhotoId || user.coverPhotoId,
+        bio: formData.bio || "",
       })
 
       onClose();
@@ -158,6 +154,8 @@ function EditProfileModal({
       console.error("Error completing onboarding:", error);
     } finally {
       setIsLoading(false);
+      setProfilePic(null);
+      setCoverPhoto(null);
     }
   }
 

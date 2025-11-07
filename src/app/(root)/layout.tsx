@@ -19,7 +19,6 @@ export default function RootLayout({
 
   useEffect(() => {
     if (currentUser) {
-      console.log(currentUser._id)
       setCurrentUser({
         ...currentUser,
         profile_pic_id: currentUser.profile_pic_id || undefined,
