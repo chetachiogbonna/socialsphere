@@ -23,7 +23,7 @@ function UploadFile({ post }: { post?: Post }) {
   return (
     <div
       {...getRootProps()}
-      className={`relative w-full h-[500px] rounded-2xl border-2 border-dashed transition 
+      className={`relative z-0 w-full h-[500px] rounded-2xl border-2 border-dashed transition 
     ${isDragActive ? "border-blue-400 bg-blue-50/10" : "border-gray-600 bg-[#1A1A1A]"} 
     flex flex-col items-center justify-center cursor-pointer hover:border-blue-400`}
     >

@@ -8,6 +8,8 @@ import { useQuery } from "convex/react";
 import { useEffect } from "react";
 import { api } from "../../../convex/_generated/api";
 import OnboardingModal from "@/components/OnboardingModal";
+import RobotIcon from "@/components/RobotIcon";
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({
   children,
@@ -16,6 +18,7 @@ export default function RootLayout({
 }>) {
   const { setCurrentUser } = useCurrentUserStore()
   const currentUser = useQuery(api.user.getForCurrentUser);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (currentUser) {
@@ -56,6 +59,7 @@ export default function RootLayout({
         {children}
       </section>
       <Bottombar />
+      {pathname !== "/" && <RobotIcon />}
     </main>
   );
 }
