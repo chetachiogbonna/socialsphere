@@ -26,7 +26,7 @@ export default function RobotIcon() {
   if (!loading && aiIsSpeaking) glow = "shadow-[0_0_20px_rgba(34,197,94,0.9)] text-green-500"; // responded
 
   return (
-    <div className={cn("absolute flex flex-col items-center gap-2", pathname === "/" ? "-left-12 -top-2" : "bottom-6 right-6")}>
+    <div className={cn("absolute flex flex-col items-center gap-2", pathname === "/" ? "-left-12 -top-2" : "bottom-14 md:bottom-6 right-6")}>
       <motion.button
         onClick={handleClick}
         whileTap={{ scale: 0.9 }}

@@ -127,7 +127,7 @@ function CustomForm({ post, type }: { post?: Post, type: "Update" | "Create" }) 
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
+        className="space-y-4 pb-18"
       >
         <CustomFormField control={form.control} label={{ name: "Title" }} />
 
