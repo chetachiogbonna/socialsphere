@@ -36,10 +36,11 @@ export async function POST(req: NextRequest) {
         username: evt.data.username!,
         email: evt.data.email_addresses[0].email_address,
         profile_pic: evt.data.image_url!
-      })
+      });
+      return NextResponse.json({ status: "success" }, { status: 200 });
     }
 
-    return NextResponse.json({ error: "Invalid webhook" }, { status: 400 });
+    return NextResponse.json({ status: "ignored" }, { status: 200 });
   } catch (err) {
     console.error("Webhook error:", err);
     return NextResponse.json({ error: "Invalid webhook" }, { status: 400 });

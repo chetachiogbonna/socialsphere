@@ -21,7 +21,15 @@ function useAIAction() {
   const [lastResponse, setLastResponse] = useState<AIResponse | null>(null);
   const aiIsSpeakingRef = useRef(false);
 
-  const mode = typeof window !== "undefined" && JSON.parse(localStorage.getItem("lazy-mode")!);
+  let mode = false
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      mode = JSON.parse(localStorage.getItem("lazy-mode") || "true")
+
+    } else {
+      mode = true;
+    }
+  }, []);
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
@@ -95,9 +103,14 @@ function useAIAction() {
         const raw = await res.json();
         const parsed: AIResponse = JSON.parse(raw);
 
-        const currentViewingPost = JSON.parse(localStorage.getItem("currentViewingPost") || "{}") as Post;
+        const currentViewingPost = JSON.parse(localStorage.getItem("currentViewingPost") || "null");
 
         if ((pathname === "/" || pathname.startsWith("/post-details/")) && ["navigate", "like_post", "unlike_post", "save_post", "unsave_post", "comment"].includes(parsed.action)) {
+          if (!currentViewingPost || !currentViewingPost._id) {
+            parsed.response = "No post is currently selected.";
+            speak(parsed.response);
+            return parsed;
+          }
 
           const likePost = (userId: Id<"users">, type: "like_post" | "unlike_post") => {
             const likes = currentViewingPost.likes;

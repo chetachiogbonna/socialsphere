@@ -25,7 +25,7 @@ const PostCard = forwardRef<HTMLDivElement, {
       <CardHeader className="flex justify-between items-center">
         <div className="flex flex-row items-center gap-3">
           <Link href={`/profile/${post.ownerId}`}>
-            <img
+            <Image
               src={post.user.profileImage}
               alt={post.user.username}
               width={40}

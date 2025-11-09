@@ -26,7 +26,7 @@ export default function RootLayout({
         ...currentUser,
         profile_pic_id: currentUser.profile_pic_id || undefined,
         cover_photo: currentUser.cover_photo || undefined,
-        cover_photo_id: currentUser.profile_pic_id || undefined,
+        cover_photo_id: currentUser.cover_photo_id || undefined,
         bio: currentUser.bio || undefined,
         followers: currentUser.followers || [],
         following: currentUser.following || []
@@ -42,7 +42,7 @@ export default function RootLayout({
           ...currentUser,
           profile_pic_id: currentUser.profile_pic_id || undefined,
           cover_photo: currentUser.cover_photo || undefined,
-          cover_photo_id: currentUser.profile_pic_id || undefined,
+          cover_photo_id: currentUser.cover_photo_id || undefined,
           bio: currentUser.bio || undefined,
           followers: currentUser.followers || [],
           following: currentUser.following || []

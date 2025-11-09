@@ -11,11 +11,13 @@ import Link from "next/link";
 function Header() {
   const { transcript, listening } = useAIAction();
   const { currentUser } = useCurrentUserStore()
-  const mode = typeof window !== "undefined" && JSON.parse(window?.localStorage?.getItem("lazy-mode") ?? "true")
+  const mode = typeof window !== "undefined"
+    ? (() => { try { return JSON.parse(window?.localStorage?.getItem("lazy-mode") ?? "true"); } catch { return true; } })()
+    : true;
 
   return (
     <>
-      <header className="bg-[#1A1A1A] z-100 h-[60px] mb-4 fixed top-0 right-0 left-0 shadow-md">
+      <header className="bg-[#1A1A1A] z-[100] h-[60px] mb-4 fixed top-0 right-0 left-0 shadow-md">
         <div className="max-w-screen-2xl mx-auto flex justify-between items-center px-4">
           <Logo />
 
@@ -24,7 +26,7 @@ function Header() {
               <DropdownMenuTrigger className="mt-3">
                 <UserButton />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="z-200 bg-[#404040] border-[#3B3C3C] text-[#E9E9E9]">
+              <DropdownMenuContent className="z-[200] bg-[#404040] border-[#3B3C3C] text-[#E9E9E9]">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-[#262626]" />
                 <DropdownMenuItem
@@ -46,7 +48,7 @@ function Header() {
 
       <AnimatePresence>
         {(mode ? transcript : listening) && (
-          <div className="fixed inset-0 z-1000 bg-[rgba(0,0,0,0.5)]">
+          <div className="fixed inset-0 z-[1000] bg-[rgba(0,0,0,0.5)]">
             <motion.div
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}

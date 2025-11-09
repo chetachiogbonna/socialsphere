@@ -14,16 +14,24 @@ import { Switch } from "./ui/switch";
 import SpeechRecognition from "react-speech-recognition";
 
 function Settings() {
-  const mode = typeof window !== "undefined" ? JSON.parse(window?.localStorage?.getItem("lazy-mode") ?? "true") as boolean : true;
-
+  let mode = false
   const [open, setOpen] = useState(false)
   const [lazyMode, setLazyMode] = useState(mode)
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      mode = JSON.parse(localStorage.getItem("lazy-mode") || "true")
+    } else {
+      mode = true;
+    }
+
     localStorage.setItem("lazy-mode", `${lazyMode}`)
 
     if (!lazyMode) SpeechRecognition.stopListening()
   }, [lazyMode])
+
+  console.log(mode);
+  console.log("lazyMode", lazyMode);
 
   return (
     <div>
@@ -66,7 +74,7 @@ function Settings() {
                     className="bg-blue hover:bg-blue cursor-pointer"
                     onClick={() => {
                       setOpen(false)
-                      if (lazyMode) SpeechRecognition.startListening({ continuous: false, language: "en-US" })
+                      if (lazyMode) SpeechRecognition.startListening({ continuous: mode, language: "en-US" })
                     }}
                   >
                     Save

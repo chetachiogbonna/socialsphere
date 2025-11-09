@@ -67,7 +67,6 @@ function CustomTagInput({ field, fieldChange, value }: CustomTagInputProps) {
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault()
-            console.log(value)
             addTag()
           }
         }}

@@ -9,67 +9,21 @@ import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import PeopleSkeletonLoader from "@/components/skeletons/PeopleSkeletonLoader";
 import { Id } from "../../../../convex/_generated/dataModel";
 
-const mockUsers = [
-  {
-    _id: "1",
-    first_name: "Sarah",
-    last_name: "Johnson",
-    username: "sarahj",
-    profile_pic: "/api/placeholder/64/64",
-    bio: "Designer & Creative",
-    followers: 1234,
-    following: 567,
-    isFollowing: false
-  },
-  {
-    _id: "2",
-    first_name: "Mike",
-    last_name: "Chen",
-    username: "mikechen",
-    profile_pic: "/api/placeholder/64/64",
-    bio: "Tech enthusiast",
-    followers: 892,
-    following: 234,
-    isFollowing: true
-  },
-  {
-    _id: "3",
-    first_name: "Emma",
-    last_name: "Davis",
-    username: "emmad",
-    profile_pic: "/api/placeholder/64/64",
-    bio: "Photographer 📸",
-    followers: 2341,
-    following: 890,
-    isFollowing: false
-  },
-  {
-    _id: "4",
-    first_name: "James",
-    last_name: "Wilson",
-    username: "jwilson",
-    profile_pic: "/api/placeholder/64/64",
-    bio: "Fitness & Wellness",
-    followers: 567,
-    following: 123,
-    isFollowing: false
-  }
-];
 
 function People() {
   const { currentUser } = useCurrentUserStore();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const userId = currentUser ? currentUser._id : undefined;
-  const users = useQuery(api.user.getOtherUsers, { userId })
+  const currentUserId = currentUser ? currentUser._id : undefined;
+  const users = useQuery(api.user.getOtherUsers, { userId: currentUserId })
   const toggleFollowMutation = useMutation(api.user.toggleFollow);
 
-  if (!users) {
+  if (!users || !currentUserId) {
     return <PeopleSkeletonLoader count={8} />;
   }
 
-  const handleFollow = (userId: Id<"users">) => {
-    toggleFollowMutation({ userId });
+  const handleFollow = (targetUserId: Id<"users">) => {
+    toggleFollowMutation({ targetUserId, currentUserId });
   };
 
   const filteredUsers = users.filter(user =>

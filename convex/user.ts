@@ -33,7 +33,7 @@ export const createUser = mutation({
       username: args.username,
       email: args.email,
       profile_pic: args.profile_pic,
-      profile_pic_id: args.profile_pic,
+      profile_pic_id: undefined,
       cover_photo: undefined,
       cover_photo_id: undefined,
       bio: undefined,
@@ -103,7 +103,7 @@ export const getOtherUsers = query({
     const allUsers = await ctx.db.query("users").collect()
     return allUsers
       .filter((user => user._id !== userId))
-      .map(user => ({ ...user, isFollowing: user.following?.includes(userId) }));
+      .map(user => ({ ...user, isFollowing: (user.followers || []).includes(userId) }));
   }
 })
 
@@ -119,24 +119,28 @@ export const getUserById = query({
 
 export const toggleFollow = mutation({
   args: {
-    userId: v.id("users")
+    targetUserId: v.id("users"),
+    currentUserId: v.id("users")
   },
   handler: async (ctx, args) => {
-    const { userId } = args;
-    if (!userId) return;
+    const viewer = await ctx.db.get(args.currentUserId);
+    if (!viewer) throw new Error("Viewer not found");
 
-    const user = await ctx.db.get(args.userId);
-    if (!user) throw new Error("User not found");
+    const target = await ctx.db.get(args.targetUserId);
+    if (!target) throw new Error("Target user not found");
 
-    const alreadyFollowing = user.following?.includes(userId);
+    const isFollowing = (viewer.following || []).includes(args.targetUserId);
+    const nextFollowing = isFollowing
+      ? (viewer.following || []).filter((id) => id !== args.targetUserId)
+      : [...(viewer.following || []), args.targetUserId];
 
-    let updatedFollowing;
-    if (alreadyFollowing) {
-      updatedFollowing = user.following?.filter((u) => u !== userId);
-    } else {
-      updatedFollowing = [...(user.following || []), userId];
-    }
+    const nextFollowers = isFollowing
+      ? (target.followers || []).filter((id) => id !== viewer._id)
+      : [...(target.followers || []), viewer._id];
 
-    await ctx.db.patch(args.userId, { following: updatedFollowing });
-  }
+    await Promise.all([
+      ctx.db.patch(viewer._id, { following: nextFollowing }),
+      ctx.db.patch(args.targetUserId, { followers: nextFollowers }),
+    ]);
+  },
 })

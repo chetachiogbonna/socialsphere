@@ -96,32 +96,32 @@ function EditProfileModal({
     setIsLoading(true);
 
     try {
-      await Promise.all([
-        user.profilePicId && profilePic
-          ? deleteImage({ imageId: user.profilePicId as Id<"_storage"> })
-          : Promise.resolve(),
-        user.coverPhotoId && user.coverPhoto && coverPhoto
-          ? deleteImage({ imageId: user.coverPhotoId as Id<"_storage"> })
-          : Promise.resolve()
-      ])
+      // Determine which existing images should be deleted AFTER successful update
+      const imageIdsToDelete: string[] = [];
+      if (profilePic && user.profilePicId) {
+        imageIdsToDelete.push(user.profilePicId);
+      }
+      if (coverPhoto && user.coverPhoto && user.coverPhotoId) {
+        imageIdsToDelete.push(user.coverPhotoId);
+      }
 
-      const url = await generateUploadUrl();
-
-      let profilePicId: null | string = null
-      let coverPhotoId: null | string = null
+      let profilePicId: null | string = null;
+      let coverPhotoId: null | string = null;
 
       const uploadProfilePic = async () => {
         if (!profilePic) return;
 
-        profilePicId = await uploadImage(url, profilePic)
-        return await getImageUrl({ storageId: profilePicId as Id<"_storage"> })
+        const url = await generateUploadUrl();
+        profilePicId = await uploadImage(url, profilePic);
+        return await getImageUrl({ storageId: profilePicId as Id<"_storage"> });
       }
 
       const uploadCoverPhoto = async () => {
         if (!coverPhoto) return;
 
-        coverPhotoId = await uploadImage(url, coverPhoto)
-        return await getImageUrl({ storageId: coverPhotoId as Id<"_storage"> })
+        const url = await generateUploadUrl();
+        coverPhotoId = await uploadImage(url, coverPhoto);
+        return await getImageUrl({ storageId: coverPhotoId as Id<"_storage"> });
       }
 
       const [profilePicUrl, coverPhotoUrl] = await Promise.all([
@@ -142,6 +142,11 @@ function EditProfileModal({
         bio: formData.bio || "",
       })
 
+      // Only delete previous images after the new ones are successfully saved
+      if (imageIdsToDelete.length > 0) {
+        await deleteImage({ imageIds: imageIdsToDelete as Id<"_storage">[] });
+      }
+
       onClose();
       router.refresh()
     } catch (error) {
@@ -158,7 +163,6 @@ function EditProfileModal({
       setCoverPhoto(null);
     }
   }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
@@ -174,6 +178,7 @@ function EditProfileModal({
             <Label htmlFor="cover-photo">Cover Photo</Label>
             <div className="relative h-40 bg-gray-800 rounded-lg overflow-hidden group">
               {coverPhoto || user.coverPhoto ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={coverPhoto ? URL.createObjectURL(coverPhoto) : user.coverPhoto}
                   alt="Cover"
@@ -206,6 +211,7 @@ function EditProfileModal({
             <Label htmlFor="profile-picture">Profile Picture</Label>
             <div className="flex items-center gap-4">
               <div className="relative group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={profilePic ? URL.createObjectURL(profilePic) : user.profilePic}
                   alt="Profile"

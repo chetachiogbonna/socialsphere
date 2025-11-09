@@ -5,7 +5,7 @@ import { Calendar, Edit, Grid, Heart } from "lucide-react";
 import Image from "next/image";
 import EditProfileModal from "@/components/EditProfileModal";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import Loader from "@/components/Loader";
@@ -49,9 +49,13 @@ function Profile() {
 
   const isOwnProfile = userId === currentUser?._id;
 
+  const toggleFollowMutation = useMutation(api.user.toggleFollow);
+
   if (!currentUser) {
     return <ProfileSkeleton />
   }
+
+  const isFollowing = (currentUser.following || []).includes(userId as Id<"users">);
 
   const joinDate = new Date(currentUser._creationTime || Date.now()).toLocaleDateString('en-US', {
     month: 'long',
@@ -63,10 +67,10 @@ function Profile() {
       <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[70%] max-sm:last:mb-14 pb-20 min-h-screen">
         <div className="relative bg-gray-800 rounded-lg overflow-hidden h-48 md:h-56">
           {currentUser.cover_photo ? (
-            <img
+            <Image
               src={currentUser.cover_photo}
               alt="Cover"
-              // fill
+              fill
               className="object-cover"
             />
           ) : (
@@ -77,7 +81,7 @@ function Profile() {
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 -mt-16 relative z-10">
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-shrink-0">
-              <img
+              <Image
                 src={currentUser.profile_pic}
                 alt={currentUser.username || "User"}
                 width={128}
@@ -109,12 +113,15 @@ function Profile() {
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => {
-                        // Handle follow action
-                      }}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={
+                        () => toggleFollowMutation({
+                          targetUserId: userId as Id<"users">,
+                          currentUserId: currentUser._id
+                        })
+                      }
+                      className={isFollowing ? "bg-gray-100 text-gray-700 hover:bg-gray-200" : "bg-blue-600 hover:bg-blue-700 text-white"}
                     >
-                      Follow
+                      {isFollowing ? "Following" : "Follow"}
                     </Button>
                   )}
                 </div>
@@ -135,11 +142,11 @@ function Profile() {
                   <span className="text-gray-400 ml-1">posts</span>
                 </div>
                 <div>
-                  <span className="font-semibold text-white">{currentUser.followers?.toLocaleString() || 0}</span>
+                  <span className="font-semibold text-white">{(currentUser.followers?.length || 0).toLocaleString()}</span>
                   <span className="text-gray-400 ml-1">followers</span>
                 </div>
                 <div>
-                  <span className="font-semibold text-white">{currentUser.following?.toLocaleString() || 0}</span>
+                  <span className="font-semibold text-white">{(currentUser.following?.length || 0).toLocaleString()}</span>
                   <span className="text-gray-400 ml-1">following</span>
                 </div>
               </div>

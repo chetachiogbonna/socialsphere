@@ -25,6 +25,10 @@ export default function RobotIcon() {
   if (loading) glow = "shadow-[0_0_20px_rgba(234,179,8,0.9)] text-yellow-500"; // thinking
   if (!loading && aiIsSpeaking) glow = "shadow-[0_0_20px_rgba(34,197,94,0.9)] text-green-500"; // responded
 
+
+
+
+
   return (
     <div className={cn("absolute flex flex-col items-center gap-2", pathname === "/" ? "-left-12 -top-2" : "bottom-14 md:bottom-6 right-6")}>
       <motion.button
@@ -38,7 +42,7 @@ export default function RobotIcon() {
         <Bot className={cn("", pathname === "/" ? "w-6 h-6" : "w-8 h-8")} />
 
         <motion.span
-          className="absolute z-10000 inset-0 rounded-full border-2 border-indigo-400"
+          className="absolute z-[10000] inset-0 rounded-full border-2 border-indigo-400"
           animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         />
@@ -46,7 +50,7 @@ export default function RobotIcon() {
         {/* Listening ripple */}
         {listening && (
           <motion.span
-            className="absolute z-10000 inset-0 rounded-full border-2 border-blue-400"
+            className="absolute z-[10000] inset-0 rounded-full border-2 border-blue-400"
             animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
           />
@@ -55,7 +59,7 @@ export default function RobotIcon() {
         {/* Thinking spinner */}
         {loading && (
           <motion.div
-            className="absolute z-10000 inset-0 border-4 border-yellow-400 border-t-transparent rounded-full"
+            className="absolute z-[10000] inset-0 border-4 border-yellow-400 border-t-transparent rounded-full"
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 1 }}
           />
@@ -63,7 +67,7 @@ export default function RobotIcon() {
       </motion.button>
 
       {/* Talking dots */}
-      {!loading && aiIsSpeaking && (
+      {(!loading && aiIsSpeaking) && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

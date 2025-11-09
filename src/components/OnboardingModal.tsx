@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { uploadImage } from "@/lib/utils";
@@ -81,28 +80,26 @@ function OnboardingModal({
   };
 
   const handleComplete = async () => {
-    setIsLoading(true);
-
     if (!bio) return;
 
-    try {
-      const url = await generateUploadUrl();
+    setIsLoading(true);
 
+    try {
       let profileImageId: null | string = null
       let coverPhotoId: null | string = null
 
       const uploadProfileImage = async () => {
         if (!profileImage) return;
-
-        profileImageId = await uploadImage(url, profileImage)
-        return await getImageUrl({ storageId: profileImageId as Id<"_storage"> })
+        const url = await generateUploadUrl();
+        profileImageId = await uploadImage(url, profileImage);
+        return await getImageUrl({ storageId: profileImageId as Id<"_storage"> });
       }
 
       const uploadCoverImage = async () => {
         if (!coverPhoto) return;
-
-        coverPhotoId = await uploadImage(url, coverPhoto)
-        return await getImageUrl({ storageId: coverPhotoId as Id<"_storage"> })
+        const url = await generateUploadUrl();
+        coverPhotoId = await uploadImage(url, coverPhoto);
+        return await getImageUrl({ storageId: coverPhotoId as Id<"_storage"> });
       }
 
       const [profilePicUrl, coverPhotoUrl] = await Promise.all([
@@ -176,7 +173,7 @@ function OnboardingModal({
 
               <div className="flex flex-col items-center gap-6">
                 <div className="relative group">
-                  <Image
+                  <img
                     src={profileImage ? URL.createObjectURL(profileImage) : user.profile_pic}
                     alt="Profile"
                     width={160}
@@ -228,11 +225,10 @@ function OnboardingModal({
 
               <div className="relative h-48 bg-gray-800 rounded-lg overflow-hidden group">
                 {coverPhoto ? (
-                  <Image
-                    src={URL.createObjectURL(coverPhoto || new Blob())}
+                  <img
+                    src={URL.createObjectURL(coverPhoto)}
                     alt="Cover"
-                    fill
-                    className="object-cover"
+                    className="object-cover w-full h-full"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-r from-gray-700 to-gray-800 flex items-center justify-center">

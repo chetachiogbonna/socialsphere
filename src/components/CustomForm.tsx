@@ -78,7 +78,7 @@ function CustomForm({ post, type }: { post?: Post, type: "Update" | "Create" }) 
         if (!post) return;
         // If imageUrl has changed, upload the new image
         if (imageFile) {
-          await deleteImage({ imageId: post.imageId as Id<"_storage"> });
+          await deleteImage({ imageIds: [post.imageId as Id<"_storage">] });
           const url = await generateUploadUrl();
           const imageId = await uploadImage(url, imageFile!) as Id<"_storage">;
           const realImageUrl = await getImageUrl({ storageId: imageId as Id<"_storage"> }) as string;
