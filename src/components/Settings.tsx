@@ -11,27 +11,19 @@ import { Button } from "./ui/button"
 import { Settings as LucideSettings } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { Switch } from "./ui/switch";
-import SpeechRecognition from "react-speech-recognition";
 
 function Settings() {
-  let mode = false
   const [open, setOpen] = useState(false)
-  const [lazyMode, setLazyMode] = useState(mode)
+  const [lazyMode, setLazyMode] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try { return JSON.parse(localStorage.getItem("lazy-mode") ?? "false"); } catch { return false; }
+  })
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      mode = JSON.parse(localStorage.getItem("lazy-mode") || "true")
-    } else {
-      mode = true;
-    }
-
-    localStorage.setItem("lazy-mode", `${lazyMode}`)
-
-    if (!lazyMode) SpeechRecognition.stopListening()
+    if (typeof window === "undefined") return;
+    localStorage.setItem("lazy-mode", JSON.stringify(lazyMode))
+    window.dispatchEvent(new Event("lazy-mode-changed"))
   }, [lazyMode])
-
-  console.log(mode);
-  console.log("lazyMode", lazyMode);
 
   return (
     <div>
@@ -74,7 +66,6 @@ function Settings() {
                     className="bg-blue hover:bg-blue cursor-pointer"
                     onClick={() => {
                       setOpen(false)
-                      if (lazyMode) SpeechRecognition.startListening({ continuous: mode, language: "en-US" })
                     }}
                   >
                     Save

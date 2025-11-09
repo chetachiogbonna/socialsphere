@@ -21,20 +21,32 @@ function useAIAction() {
   const [lastResponse, setLastResponse] = useState<AIResponse | null>(null);
   const aiIsSpeakingRef = useRef(false);
 
-  let mode = false
+  const [lazyMode, setLazyMode] = useState<boolean>(false);
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      mode = JSON.parse(localStorage.getItem("lazy-mode") || "true")
-
-    } else {
-      mode = true;
+    if (typeof window === "undefined") return;
+    try {
+      setLazyMode(JSON.parse(localStorage.getItem("lazy-mode") ?? "false"));
+    } catch {
+      setLazyMode(false);
     }
+    const onChange = () => {
+      try {
+        setLazyMode(JSON.parse(localStorage.getItem("lazy-mode") ?? "false"));
+      } catch {
+        setLazyMode(false);
+      }
+    };
+    window.addEventListener("lazy-mode-changed", onChange as EventListener);
+    return () => window.removeEventListener("lazy-mode-changed", onChange as EventListener);
   }, []);
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
   const { currentUser } = useCurrentUserStore();
   const { post, setPost } = usePostStore();
+
+  // Ensure we only start listening once per page/session while lazy-mode is on
+  const hasStartedRef = useRef(false);
 
   const toggleLikeMutation = useMutation(api.post.toggleLike);
   const toggleSaveMutation = useMutation(api.post.toggleSave);
@@ -50,31 +62,10 @@ function useAIAction() {
           utterance.lang = "en-US";
 
           aiIsSpeakingRef.current = true;
-          SpeechRecognition.stopListening()
-
-          async function simulateSpeech(text: string, delay = 380) {
-            const words = `Speaking this text: ${text}`.split(" ");
-            for (let i = 0; i < words.length; i++) {
-              await new Promise(resolve => setTimeout(resolve, delay));
-            }
-
-            if (aiIsSpeakingRef.current) {
-              aiIsSpeakingRef.current = false;
-              if (mode) {
-                SpeechRecognition.startListening({ continuous: true, language: "en-US" });
-              }
-            }
-          }
-
-          simulateSpeech(text);
-
+          // Keep microphone state stable; do not auto stop/start during speech
           speechSynthesis.speak(utterance);
-
           utterance.onend = () => {
             aiIsSpeakingRef.current = false;
-            if (mode) {
-              SpeechRecognition.startListening({ continuous: true, language: "en-US" });
-            }
           };
 
         }
@@ -275,7 +266,7 @@ function useAIAction() {
         }, 1000);
       }
     },
-    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse, mode]
+    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse, lazyMode]
   );
 
   const startListening = () =>
@@ -283,24 +274,34 @@ function useAIAction() {
   const stopListening = () => SpeechRecognition.stopListening();
 
   useEffect(() => {
-    if (mode) {
-      if (!transcript && !listening && !loading && !aiIsSpeakingRef.current) {
-        startListening()
+    // Start once when lazy-mode is on; stop when it turns off or on route change
+    if (!lazyMode) {
+      if (hasStartedRef.current) {
+        stopListening();
+        hasStartedRef.current = false;
       }
+      return;
     }
-  }, [pathname, loading, listening, transcript, mode]);
+    if (!hasStartedRef.current) {
+      startListening();
+      hasStartedRef.current = true;
+    }
+    return () => {
+      stopListening();
+      hasStartedRef.current = false;
+    };
+  }, [lazyMode, pathname]);
 
   useEffect(() => {
-    if (!mode) return;
+    if (!lazyMode || !listening || aiIsSpeakingRef.current) return;
 
     let silenceTimer: NodeJS.Timeout | null = null;
 
     if (transcript && transcript.trim()) {
       if (silenceTimer) clearTimeout(silenceTimer);
-
       silenceTimer = setTimeout(() => {
         const text = transcript.trim();
-        if (text) {
+        if (text && !aiIsSpeakingRef.current) {
           runAI(text).finally(resetTranscript)
         }
       }, 1000);
@@ -309,7 +310,7 @@ function useAIAction() {
     return () => {
       if (silenceTimer) clearTimeout(silenceTimer);
     };
-  }, [transcript, runAI, resetTranscript, mode]);
+  }, [transcript, runAI, resetTranscript, lazyMode, listening]);
 
   return {
     runAI,
