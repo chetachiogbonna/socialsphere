@@ -22,7 +22,6 @@ function Settings() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     localStorage.setItem("lazy-mode", JSON.stringify(lazyMode))
-    window.dispatchEvent(new Event("lazy-mode-changed"))
   }, [lazyMode])
 
   return (

@@ -25,10 +25,6 @@ export default function RobotIcon() {
   if (loading) glow = "shadow-[0_0_20px_rgba(234,179,8,0.9)] text-yellow-500"; // thinking
   if (!loading && aiIsSpeaking) glow = "shadow-[0_0_20px_rgba(34,197,94,0.9)] text-green-500"; // responded
 
-
-
-
-
   return (
     <div className={cn("absolute flex flex-col items-center gap-2", pathname === "/" ? "-left-12 -top-2" : "bottom-14 md:bottom-6 right-6")}>
       <motion.button
@@ -36,7 +32,7 @@ export default function RobotIcon() {
         whileTap={{ scale: 0.9 }}
         animate={listening || aiIsSpeaking ? { y: [0, -3, 0] } : { y: 0 }}
         transition={{ repeat: listening || aiIsSpeaking ? Infinity : 0, duration: 1 }}
-        className={`${pathname === "/" ? "p-1" : "p-5"} rounded-full bg-[#1A1A1A] cursor-pointer ${glow} transition-all relative ${(pathname === "/" && (listening || transcript)) ? "z-50" : "z-20"}`}
+        className={`${pathname === "/" ? "p-1" : "p-5"} rounded-full bg-[#1A1A1A] cursor-pointer ${glow} transition-all relative ${(pathname === "/" && (listening || transcript)) ? "z-1000" : "z-20"}`}
         disabled={loading || !!aiIsSpeaking}
       >
         <Bot className={cn("", pathname === "/" ? "w-6 h-6" : "w-8 h-8")} />

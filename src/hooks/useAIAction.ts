@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useCallback, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
@@ -14,63 +12,62 @@ import { toast } from "sonner";
 let isGloballyProcessing = false;
 let lastGlobalTranscript = "";
 
-function useAIAction() {
+export function useAIAction() {
   const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [lastResponse, setLastResponse] = useState<AIResponse | null>(null);
   const aiIsSpeakingRef = useRef(false);
 
-  const [lazyMode, setLazyMode] = useState<boolean>(false);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      setLazyMode(JSON.parse(localStorage.getItem("lazy-mode") ?? "false"));
-    } catch {
-      setLazyMode(false);
-    }
-    const onChange = () => {
-      try {
-        setLazyMode(JSON.parse(localStorage.getItem("lazy-mode") ?? "false"));
-      } catch {
-        setLazyMode(false);
-      }
-    };
-    window.addEventListener("lazy-mode-changed", onChange as EventListener);
-    return () => window.removeEventListener("lazy-mode-changed", onChange as EventListener);
-  }, []);
+  const mode = typeof window !== "undefined" && JSON.parse(localStorage.getItem("lazy-mode")!);
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
   const { currentUser } = useCurrentUserStore();
-  const { post, setPost } = usePostStore();
-
-  // Ensure we only start listening once per page/session while lazy-mode is on
-  const hasStartedRef = useRef(false);
+  const { post, setPost, currentViewingPost } = usePostStore();
 
   const toggleLikeMutation = useMutation(api.post.toggleLike);
   const toggleSaveMutation = useMutation(api.post.toggleSave);
   const handleComment = useMutation(api.post.comment);
-  const handleDeletePost = useMutation(api.post.deletePost)
+  const handleDeletePost = useMutation(api.post.deletePost);
 
+  const speak = (text: string) => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
 
-  const runAI = useCallback(
-    async (textInput: string) => {
-      const speak = (text: string) => {
-        if (typeof window !== "undefined" && "speechSynthesis" in window) {
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = "en-US";
+      aiIsSpeakingRef.current = true;
+      SpeechRecognition.stopListening();
 
-          aiIsSpeakingRef.current = true;
-          // Keep microphone state stable; do not auto stop/start during speech
-          speechSynthesis.speak(utterance);
-          utterance.onend = () => {
-            aiIsSpeakingRef.current = false;
-          };
+      async function simulateSpeech(text: string, delay = 380) {
+        const words = `Speaking this text: ${text}`.split(" ");
+        for (let i = 0; i < words.length; i++) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
 
+        if (aiIsSpeakingRef.current) {
+          aiIsSpeakingRef.current = false;
+          if (mode) {
+            SpeechRecognition.startListening({ continuous: true, language: "en-US" });
+          }
         }
       }
 
+      simulateSpeech(text);
+
+      speechSynthesis.speak(utterance);
+
+      utterance.onend = () => {
+        aiIsSpeakingRef.current = false;
+        if (mode) {
+          SpeechRecognition.startListening({ continuous: true, language: "en-US" });
+        }
+      };
+    }
+  };
+
+  const runAI = useCallback(
+    async (textInput: string) => {
       if (!textInput) {
         speak("Please provide an input!");
         return { response: "Please provide an input!" };
@@ -94,15 +91,11 @@ function useAIAction() {
         const raw = await res.json();
         const parsed: AIResponse = JSON.parse(raw);
 
-        const currentViewingPost = JSON.parse(localStorage.getItem("currentViewingPost") || "null");
+        if (!currentViewingPost) {
+          return toast.error("No post is currently being viewed.");
+        }
 
         if ((pathname === "/" || pathname.startsWith("/post-details/")) && ["navigate", "like_post", "unlike_post", "save_post", "unsave_post", "comment"].includes(parsed.action)) {
-          if (!currentViewingPost || !currentViewingPost._id) {
-            parsed.response = "No post is currently selected.";
-            speak(parsed.response);
-            return parsed;
-          }
-
           const likePost = (userId: Id<"users">, type: "like_post" | "unlike_post") => {
             const likes = currentViewingPost.likes;
             const alreadyLiked = likes.includes(userId);
@@ -248,6 +241,7 @@ function useAIAction() {
         }
 
         setLastResponse(parsed);
+        // resetTranscript();
         return parsed;
       } catch (error) {
         console.error("AI action failed", error);
@@ -266,7 +260,7 @@ function useAIAction() {
         }, 1000);
       }
     },
-    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse, lazyMode]
+    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, speak, currentUser, post, setPost, lastResponse]
   );
 
   const startListening = () =>
@@ -274,34 +268,24 @@ function useAIAction() {
   const stopListening = () => SpeechRecognition.stopListening();
 
   useEffect(() => {
-    // Start once when lazy-mode is on; stop when it turns off or on route change
-    if (!lazyMode) {
-      if (hasStartedRef.current) {
-        stopListening();
-        hasStartedRef.current = false;
+    if (mode) {
+      if (!transcript && !listening && !loading && !aiIsSpeakingRef.current) {
+        startListening()
       }
-      return;
     }
-    if (!hasStartedRef.current) {
-      startListening();
-      hasStartedRef.current = true;
-    }
-    return () => {
-      stopListening();
-      hasStartedRef.current = false;
-    };
-  }, [lazyMode, pathname]);
+  }, [pathname, loading, listening, transcript, mode]);
 
   useEffect(() => {
-    if (!lazyMode || !listening || aiIsSpeakingRef.current) return;
+    if (!mode) return;
 
     let silenceTimer: NodeJS.Timeout | null = null;
 
     if (transcript && transcript.trim()) {
       if (silenceTimer) clearTimeout(silenceTimer);
+
       silenceTimer = setTimeout(() => {
         const text = transcript.trim();
-        if (text && !aiIsSpeakingRef.current) {
+        if (text) {
           runAI(text).finally(resetTranscript)
         }
       }, 1000);
@@ -310,7 +294,7 @@ function useAIAction() {
     return () => {
       if (silenceTimer) clearTimeout(silenceTimer);
     };
-  }, [transcript, runAI, resetTranscript, lazyMode, listening]);
+  }, [transcript, runAI, resetTranscript, mode]);
 
   return {
     runAI,
