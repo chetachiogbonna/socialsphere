@@ -2,13 +2,13 @@
 
 import Logo from "./Logo";
 import { SignOutButton, UserButton } from "@clerk/nextjs";
-import useAIAction from "@/hooks/useAIAction";
 import { motion, AnimatePresence } from "framer-motion";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import Link from "next/link";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
+import { useAIAction } from "@/context/AIAction";
 
 function Header() {
   const { transcript, listening } = useAIAction();
