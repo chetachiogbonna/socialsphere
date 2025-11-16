@@ -262,7 +262,7 @@ function useAIAction() {
         }, 1000);
       }
     },
-    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse, mode]
+    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse, mode, currentViewingPost]
   );
 
   const startListening = () =>

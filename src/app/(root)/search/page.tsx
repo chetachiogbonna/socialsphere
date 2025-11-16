@@ -50,7 +50,7 @@ function Search() {
           <FileSearch className="w-16 h-16 text-gray-400 mb-4" />
           <h3 className="text-xl font-semibold text-gray-300 mb-2">No posts found</h3>
           <p className="text-gray-500 text-center max-w-md">
-            We couldn't find any posts matching "{deboncedValue}". Try different keywords.
+            We couldn&apos;t find any posts matching &quot;{deboncedValue}&quot;. Try different keywords.
           </p>
         </div>
       ) : (
