@@ -42,6 +42,8 @@ function OnboardingModal({
   const getImageUrl = useMutation(api.storage.getImageUrl)
   const updateUser = useMutation(api.user.updateUser)
 
+  const MIN_BIO_LENGTH = 15;
+
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -299,7 +301,7 @@ function OnboardingModal({
                   </p>
                   <p className="flex flex-col text-xs text-gray-500">
                     <span>You can always change this later</span>
-                    <span>Must not be empty (Min length: 20)</span>
+                    <span>Must not be empty (Min length: {MIN_BIO_LENGTH})</span>
                   </p>
                 </div>
               </div>
@@ -345,7 +347,7 @@ function OnboardingModal({
               <Button
                 type="button"
                 onClick={handleComplete}
-                disabled={!bio || bio.length < 20 || isLoading}
+                disabled={!bio || bio.length < MIN_BIO_LENGTH || isLoading}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {isLoading ? "Completing..." : "Complete Profile"}

@@ -1,16 +1,20 @@
 "use client";
 
 import Logo from "./Logo";
-import { UserButton } from "@clerk/nextjs";
+import { SignOutButton, UserButton, useUser } from "@clerk/nextjs";
 import useAIAction from "@/hooks/useAIAction";
 import { motion, AnimatePresence } from "framer-motion";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import Link from "next/link";
+import { useState } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 
 function Header() {
   const { transcript, listening } = useAIAction();
   const { currentUser } = useCurrentUserStore()
+  const [wantToLogOut, setWantToLogOut] = useState(false)
+
   const mode = typeof window !== "undefined"
     ? (() => { try { return JSON.parse(window?.localStorage?.getItem("lazy-mode") ?? "true"); } catch { return true; } })()
     : true;
@@ -39,6 +43,12 @@ function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">
                   Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setWantToLogOut(true)}
+                >
+                  Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -80,6 +90,30 @@ function Header() {
           </div>
         )}
       </AnimatePresence>
+
+      {wantToLogOut && (
+        <AlertDialog open={wantToLogOut}>
+          <AlertDialogContent className="bg-dark-3">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Please log me out now.</AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                className="bg-dark-2"
+                onClick={() => setWantToLogOut(false)}
+              >
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-blue hover:bg-blue"
+                asChild
+              >
+                <SignOutButton />
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </>
   );
 }

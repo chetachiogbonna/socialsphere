@@ -8,7 +8,21 @@ import { api } from "../../../../convex/_generated/api";
 import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import PeopleSkeletonLoader from "@/components/skeletons/PeopleSkeletonLoader";
 import { Id } from "../../../../convex/_generated/dataModel";
+import Link from "next/link";
 
+const mockUser = [
+  {
+    _id: "3",
+    first_name: "Emma",
+    last_name: "Davis",
+    username: "emmad",
+    profile_pic: "/api/placeholder/64/64",
+    bio: "Photographer 📸",
+    followers: 2341,
+    following: 890,
+    isFollowing: false
+  }
+]
 
 function People() {
   const { currentUser } = useCurrentUserStore();
@@ -68,7 +82,9 @@ function People() {
               className="bg-dark-3 rounded-2xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-gray-200"
             >
               <div className="p-6 flex flex-col items-center text-center">
-                <div className="relative mb-4 group">
+                <Link
+                  href={`/profile/${user._id}`}
+                  className="relative mb-4 group">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
                   <Image
                     className="relative w-20 h-20 rounded-full border-4 border-white object-cover"
@@ -77,20 +93,21 @@ function People() {
                     width={80}
                     height={80}
                   />
-                </div>
+                </Link>
 
                 <div className="mb-4 space-y-1 w-full">
                   <h3 className="font-semibold text-lg truncate">
                     {user.first_name} {user.last_name}
                   </h3>
-                  <p className="text-sm text-gray-500 hover:text-blue-500 cursor-pointer transition-colors truncate">
+                  <Link
+                    href={`/profile/${user._id}`}
+                    className="text-sm text-gray-500 hover:text-blue-500 cursor-pointer transition-colors truncate">
                     @{user.username}
+                  </Link>
+
+                  <p className="text-xs text-gray-400 line-clamp-2 mt-2">
+                    {user.bio || "No bio available."}
                   </p>
-                  {user.bio && (
-                    <p className="text-xs text-gray-400 line-clamp-2 mt-2">
-                      {user.bio}
-                    </p>
-                  )}
                 </div>
 
                 <div className="flex gap-6 mb-4 text-sm">

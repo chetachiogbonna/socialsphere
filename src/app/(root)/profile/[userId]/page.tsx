@@ -40,24 +40,27 @@ function Profile() {
   const [activeTab, setActiveTab] = useState<"posts" | "liked">("posts");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  const userProfileDetails = useQuery(api.user.getUserById, {
+    userId: userId as Id<"users">
+  });
   const userPosts = useQuery(api.post.getPostsByUser, {
-    userId: (userId || currentUser?._id) as Id<"users">
+    userId: userId as Id<"users">
   });
   const userLikedPosts = useQuery(api.post.getUserLikedPosts, {
-    userId: (userId || currentUser?._id) as Id<"users">
+    userId: userId as Id<"users">
   });
 
   const isOwnProfile = userId === currentUser?._id;
 
   const toggleFollowMutation = useMutation(api.user.toggleFollow);
 
-  if (!currentUser) {
+  if (!currentUser || !userProfileDetails) {
     return <ProfileSkeleton />
   }
 
-  const isFollowing = (currentUser.following || []).includes(userId as Id<"users">);
+  const isFollowing = (userProfileDetails.following || []).includes(userId as Id<"users">);
 
-  const joinDate = new Date(currentUser._creationTime || Date.now()).toLocaleDateString('en-US', {
+  const joinDate = new Date(userProfileDetails._creationTime || Date.now()).toLocaleDateString('en-US', {
     month: 'long',
     year: 'numeric'
   });
@@ -66,9 +69,9 @@ function Profile() {
     <>
       <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[70%] max-sm:last:mb-14 pb-20 min-h-screen">
         <div className="relative bg-gray-800 rounded-lg overflow-hidden h-48 md:h-56">
-          {currentUser.cover_photo ? (
+          {userProfileDetails.cover_photo ? (
             <Image
-              src={currentUser.cover_photo}
+              src={userProfileDetails.cover_photo}
               alt="Cover"
               fill
               className="object-cover"
@@ -82,8 +85,8 @@ function Profile() {
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-shrink-0">
               <Image
-                src={currentUser.profile_pic}
-                alt={currentUser.username || "User"}
+                src={userProfileDetails.profile_pic}
+                alt={userProfileDetails.username || "User"}
                 width={128}
                 height={128}
                 className="w-32 h-32 rounded-full border-4 border-gray-800 object-cover shadow-lg"
@@ -94,10 +97,10 @@ function Profile() {
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
                 <div>
                   <h1 className="text-2xl font-bold text-white">
-                    {currentUser.first_name} {currentUser.last_name}
+                    {userProfileDetails.first_name} {userProfileDetails.last_name}
                   </h1>
                   <p className="text-gray-400">
-                    @{currentUser.username || currentUser.email}
+                    @{userProfileDetails.username || userProfileDetails.email}
                   </p>
                 </div>
 
@@ -127,8 +130,8 @@ function Profile() {
                 </div>
               </div>
 
-              {currentUser.bio && (
-                <p className="text-gray-300 mb-4">{currentUser.bio}</p>
+              {userProfileDetails.bio && (
+                <p className="text-gray-300 mb-4">{userProfileDetails.bio}</p>
               )}
 
               <div className="flex items-center gap-1 text-sm text-gray-400 mb-4">

@@ -1,18 +1,4 @@
-import React from 'react';
-
-const PostboxSkeleton = () => {
-  return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 animate-pulse">
-      <div className="h-4 bg-gray-700 rounded w-3/4 mb-3"></div>
-      <div className="w-full h-64 bg-gray-700 rounded-lg mb-3"></div>
-      <div className="flex gap-4">
-        <div className="h-4 bg-gray-700 rounded w-12"></div>
-        <div className="h-4 bg-gray-700 rounded w-12"></div>
-        <div className="h-4 bg-gray-700 rounded w-12"></div>
-      </div>
-    </div>
-  );
-};
+import PostboxSkeleton from "./PostboxSkeleton";
 
 const ProfileSkeleton = () => {
   return (
@@ -74,14 +60,8 @@ const ProfileSkeleton = () => {
           </div>
         </div>
 
-        {/* Posts Grid Skeleton */}
         <div className="p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <PostboxSkeleton />
-            <PostboxSkeleton />
-            <PostboxSkeleton />
-            <PostboxSkeleton />
-          </div>
+          <PostboxSkeleton />
         </div>
       </div>
     </section>

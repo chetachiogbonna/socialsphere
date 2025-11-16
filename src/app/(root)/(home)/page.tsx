@@ -6,11 +6,12 @@ import PostCard from '@/components/PostCard';
 import { useEffect, useRef } from 'react';
 import { Post } from '@/types';
 import usePostStore from '@/stores/usePostStore';
-import Loader from '@/components/Loader';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { FileText } from 'lucide-react';
+import HomeSkeleton from '@/components/skeletons/HomeSkeleton';
 
-export default function Home() {
+function Home() {
   const posts = useQuery(api.post.getAllPosts)
 
   const { currentViewingPost, setCurrentViewingPost } = usePostStore()
@@ -43,20 +44,25 @@ export default function Home() {
   }, [posts, setCurrentViewingPost])
 
   if (!posts) {
-    return <Loader className="mx-auto" />
+    return <HomeSkeleton />
   }
 
   if (posts.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center h-[80vh]">
-        <h1 className="text-2xl">No posts found</h1>
-        <p className="text-sm text-light">Be the first to create one.</p>
-        <Button asChild className="bg-blue hover:bg-blue">
-          <Link href="/create-post" className="mt-4">
-            Create one
-          </Link>
-        </Button>
-      </div>
+      <section className="flex justify-center items-center pb-36 md:pb-20 pt-10">
+        <div className="flex flex-col items-center justify-center py-20 max-w-md">
+          <FileText className="w-16 h-16 text-gray-400 mb-4" />
+          <h3 className="text-xl font-semibold text-gray-300 mb-2">No posts yet</h3>
+          <p className="text-gray-500 text-center mb-6">
+            Be the first to share something with the community. Create your first post!
+          </p>
+          <Button asChild className="bg-blue-500 hover:bg-blue-600 text-white">
+            <Link href="/create-post">
+              Create Post
+            </Link>
+          </Button>
+        </div>
+      </section>
     )
   }
 
@@ -79,3 +85,5 @@ export default function Home() {
     </section>
   );
 }
+
+export default Home;
