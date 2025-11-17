@@ -1,10 +1,10 @@
 "use client";
 
-import useAIAction from "@/hooks/useAIAction";
 import { motion } from "framer-motion";
 import { Bot } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAIAction } from "@/context/AIAction";
 
 export default function RobotIcon() {
   const pathname = usePathname()
