@@ -11,13 +11,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useAIAction } from "@/context/AIAction";
 
 function Header() {
-  const { transcript, listening } = useAIAction();
+  const { transcript, listening, mode } = useAIAction();
   const { currentUser } = useCurrentUserStore()
   const [wantToLogOut, setWantToLogOut] = useState(false)
-
-  const mode = typeof window !== "undefined"
-    ? (() => { try { return JSON.parse(window?.localStorage?.getItem("lazy-mode") ?? "true"); } catch { return true; } })()
-    : true;
 
   return (
     <>

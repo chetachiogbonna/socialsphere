@@ -8,7 +8,7 @@ import { useAIAction } from "@/context/AIAction";
 
 export default function RobotIcon() {
   const pathname = usePathname()
-  const { runAI, startListening, stopListening, transcript, listening, loading, aiIsSpeaking, resetTranscript } = useAIAction();
+  const { runAI, startListening, stopListening, transcript, listening, loading, aiIsSpeaking, resetTranscript, mode } = useAIAction();
 
   const handleClick = () => {
     if (transcript || listening) {
@@ -32,8 +32,8 @@ export default function RobotIcon() {
         whileTap={{ scale: 0.9 }}
         animate={listening || aiIsSpeaking ? { y: [0, -3, 0] } : { y: 0 }}
         transition={{ repeat: listening || aiIsSpeaking ? Infinity : 0, duration: 1 }}
-        className={`${pathname === "/" ? "p-1" : "p-5"} rounded-full bg-[#1A1A1A] cursor-pointer ${glow} transition-all relative ${(pathname === "/" && (listening || transcript)) ? "z-1000" : "z-20"}`}
-        disabled={loading || !!aiIsSpeaking}
+        className={`${pathname === "/" ? "p-1" : "p-5"} rounded-full bg-[#1A1A1A] cursor-pointer ${glow} transition-all relative ${((pathname === "/" && (listening || transcript)) || (!mode && transcript)) ? "z-1000" : "z-20"}`}
+        disabled={loading || aiIsSpeaking}
       >
         <Bot className={cn("", pathname === "/" ? "w-6 h-6" : "w-8 h-8")} />
 
@@ -55,7 +55,7 @@ export default function RobotIcon() {
         {/* Thinking spinner */}
         {loading && (
           <motion.div
-            className="absolute z-[10000] inset-0 border-4 border-yellow-400 border-t-transparent rounded-full"
+            className="absolute inset-0 border-4 border-yellow-400 border-t-transparent rounded-full"
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 1 }}
           />

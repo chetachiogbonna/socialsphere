@@ -18,7 +18,8 @@ type INITIALAIACTIONCONTEXTTYPE = {
   aiIsSpeaking: boolean,
   startListening: () => void
   stopListening: () => void,
-  resetTranscript: () => void
+  resetTranscript: () => void,
+  mode: boolean
 }
 
 const INITIALAIACTION: INITIALAIACTIONCONTEXTTYPE = {
@@ -30,7 +31,8 @@ const INITIALAIACTION: INITIALAIACTIONCONTEXTTYPE = {
   aiIsSpeaking: false,
   startListening: () => { },
   stopListening: () => { },
-  resetTranscript: () => { }
+  resetTranscript: () => { },
+  mode: false
 }
 
 let isGloballyProcessing = false;
@@ -77,6 +79,8 @@ function AIActionProvider({ children }: { children: ReactNode }) {
               aiIsSpeakingRef.current = false;
               if (mode) {
                 SpeechRecognition.startListening({ continuous: true, language: "en-US" });
+              } else {
+                resetTranscript();
               }
             }
           }
@@ -89,6 +93,8 @@ function AIActionProvider({ children }: { children: ReactNode }) {
             aiIsSpeakingRef.current = false;
             if (mode) {
               SpeechRecognition.startListening({ continuous: true, language: "en-US" });
+            } else {
+              resetTranscript();
             }
           };
 
@@ -303,8 +309,6 @@ function AIActionProvider({ children }: { children: ReactNode }) {
       } else if (loading || aiIsSpeakingRef.current) {
         stopListening()
       }
-    } else {
-      stopListening()
     }
   }, [loading, listening, transcript, mode]);
 
@@ -340,7 +344,8 @@ function AIActionProvider({ children }: { children: ReactNode }) {
         aiIsSpeaking: aiIsSpeakingRef.current,
         startListening,
         stopListening,
-        resetTranscript
+        resetTranscript,
+        mode
       }}
     >
       {children}
