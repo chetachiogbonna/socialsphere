@@ -33,8 +33,6 @@ const INITIALAIACTION: INITIALAIACTIONCONTEXTTYPE = {
   resetTranscript: () => { }
 }
 
-
-
 let isGloballyProcessing = false;
 let lastGlobalTranscript = "";
 
@@ -53,6 +51,9 @@ function AIActionProvider({ children }: { children: ReactNode }) {
 
   const { currentUser } = useCurrentUserStore();
   const { post, setPost, currentViewingPost } = usePostStore();
+
+  console.log(isGloballyProcessing);
+  console.log(lastGlobalTranscript);
 
   const toggleLikeMutation = useMutation(api.post.toggleLike);
   const toggleSaveMutation = useMutation(api.post.toggleSave);
@@ -107,7 +108,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
         } as AIResponse;
       }
 
-      if (isGloballyProcessing || textInput === lastGlobalTranscript) {
+      if (isGloballyProcessing || textInput === lastGlobalTranscript || loading || aiIsSpeakingRef.current) {
         return;
       }
 
@@ -303,7 +304,11 @@ function AIActionProvider({ children }: { children: ReactNode }) {
     if (mode) {
       if (!transcript && !listening && !loading && !aiIsSpeakingRef.current) {
         startListening()
+      } else if (loading || aiIsSpeakingRef.current) {
+        stopListening()
       }
+    } else {
+      stopListening()
     }
   }, [loading, listening, transcript, mode]);
 
@@ -320,7 +325,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
         if (text) {
           runAI(text).finally(resetTranscript)
         }
-      }, 1000);
+      }, 2000);
     }
 
     return () => {
