@@ -52,14 +52,10 @@ function AIActionProvider({ children }: { children: ReactNode }) {
   const { currentUser } = useCurrentUserStore();
   const { post, setPost, currentViewingPost } = usePostStore();
 
-  console.log(isGloballyProcessing);
-  console.log(lastGlobalTranscript);
-
   const toggleLikeMutation = useMutation(api.post.toggleLike);
   const toggleSaveMutation = useMutation(api.post.toggleSave);
   const handleComment = useMutation(api.post.comment);
   const handleDeletePost = useMutation(api.post.deletePost)
-
 
   const runAI = useCallback(
     async (textInput: string) => {
