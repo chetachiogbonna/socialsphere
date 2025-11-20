@@ -9,7 +9,6 @@ import { Id } from "../../convex/_generated/dataModel";
 import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import { toast } from "sonner";
 import { generateImage } from "@/actions/ai";
-import { get } from "http";
 
 type INITIALAIACTIONCONTEXTTYPE = {
   runAI: (textInput: string) => Promise<void | AIResponse>
@@ -25,7 +24,7 @@ type INITIALAIACTIONCONTEXTTYPE = {
 }
 
 const INITIALAIACTION: INITIALAIACTIONCONTEXTTYPE = {
-  runAI: async (_textInput: string) => undefined,
+  runAI: async (_: string) => undefined,
   lastResponse: null,
   loading: false,
   transcript: "",
@@ -345,7 +344,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
         }, 1000);
       }
     },
-    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse, mode, currentViewingPost]
+    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse, mode, currentViewingPost, loading, setIsGeneratingImage, setImageFile, setImageUrl, setImagePrompt, resetTranscript]
   );
 
   const startListening = () =>
