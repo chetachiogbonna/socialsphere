@@ -4,9 +4,9 @@ import { Control, UseFormSetValue, UseFormWatch } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form'
 import { Textarea } from './ui/textarea'
 import { Input } from './ui/input'
-import UploadFile from './UploadFile';
 import CustomTagInput from './CustomTagInput';
 import { Post } from '@/types';
+import HandleImage from './HandleImage';
 
 type CustomFormFieldProps = {
   control: Control<{
@@ -96,7 +96,7 @@ function CustomFormField({ control, label, post }: CustomFormFieldProps) {
         />
       );
     case "Image":
-      return <UploadFile post={post} />
+      return <HandleImage post={post} />
   }
 }
 

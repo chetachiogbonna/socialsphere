@@ -24,7 +24,12 @@ function CustomForm({ post, type }: { post?: Post, type: "Update" | "Create" }) 
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { imageUrl, imageFile, setImageUrl, post: newPost } = usePostStore();
+  const { imageUrl, imageFile, setImageUrl, post: newPost, setPost, isGeneratingImage, setImagePrompt } = usePostStore();
+
+  useEffect(() => {
+    setPost(null)
+    setImagePrompt("")
+  }, []);
 
   useEffect(() => {
     if (type === "Update" && post?.imageUrl) {
@@ -151,7 +156,7 @@ function CustomForm({ post, type }: { post?: Post, type: "Update" | "Create" }) 
           <Button
             type="submit"
             className="w-2/4 bg-blue cursor-pointer hover:bg-blue"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isGeneratingImage}
           >
             {isSubmitting
               ? (

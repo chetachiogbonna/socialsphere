@@ -4,12 +4,16 @@ import { create } from "zustand";
 interface PostStore {
   currentViewingPost: Post | null,
   setCurrentViewingPost: (post: Post) => void,
-  imageFile: File | null;
+  imageFile: File | Blob | null;
   post: Pick<Post, "title" | "location" | "tags"> | null;
-  setPost: (post: Pick<Post, "title" | "location" | "tags">) => void;
-  setImageFile: (imageFile: File | null) => void;
+  setPost: (post: Pick<Post, "title" | "location" | "tags"> | null) => void;
+  setImageFile: (imageFile: File | Blob | null) => void;
   imageUrl: string | null;
   setImageUrl: (imageUrl: string) => void;
+  isGeneratingImage: boolean,
+  setIsGeneratingImage: (isGeneratingImage: boolean) => void,
+  imagePrompt: string,
+  setImagePrompt: (imagePrompt: string) => void,
 }
 
 const usePostStore = create<PostStore>((set) => ({
@@ -21,6 +25,10 @@ const usePostStore = create<PostStore>((set) => ({
   setImageFile: (imageFile) => set({ imageFile }),
   imageUrl: null,
   setImageUrl: (imageUrl) => set({ imageUrl }),
+  isGeneratingImage: false,
+  setIsGeneratingImage: (isGeneratingImage) => set({ isGeneratingImage }),
+  imagePrompt: "",
+  setImagePrompt: (imagePrompt) => set({ imagePrompt }),
 }));
 
 export default usePostStore;

@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const uploadImage = async (url: string, imageFile: File) => {
+export const uploadImage = async (url: string, imageFile: File | Blob) => {
   try {
     const result = await fetch(url, {
       method: "POST",

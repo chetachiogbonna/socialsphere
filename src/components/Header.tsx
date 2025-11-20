@@ -9,9 +9,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { useAIAction } from "@/context/AIAction";
+import { X } from "lucide-react";
 
 function Header() {
-  const { transcript, listening, mode } = useAIAction();
+  const { transcript, listening, mode, resetTranscript, stopListening, startListening } = useAIAction();
   const { currentUser } = useCurrentUserStore()
   const [wantToLogOut, setWantToLogOut] = useState(false)
 
@@ -63,7 +64,7 @@ function Header() {
               className="fixed bottom-12 md:bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md"
             >
               <div
-                className=" w-full rounded-2xl border border-transparent  bg-white/10 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.3)] px-5 py-3 text-base font-medium text-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all duration-300 ease-in-out min-h-[70px] flex items-center"
+                className=" w-full rounded-2xl border border-transparent  bg-white/10 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.3)] px-5 py-3 text-base font-medium text-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all duration-300 ease-in-out min-h-[70px] flex justify-between items-center"
               >
                 {transcript ? (
                   <p className="whitespace-pre-wrap">{transcript}</p>
@@ -80,9 +81,21 @@ function Header() {
                     />
                   </div>
                 )}
+
+                <button
+                  onClick={() => {
+                    stopListening();
+                    resetTranscript();
+                    if (mode) {
+                      startListening();
+                    }
+                  }}
+                  className="text-white hover:text-gray-300 ml-4"
+                >
+                  <X />
+                </button>
               </div>
             </motion.div>
-
           </div>
         )}
       </AnimatePresence>

@@ -1,34 +1,26 @@
 "use server";
 
-// import { InferenceClient } from "@huggingface/inference";
+import { InferenceClient } from "@huggingface/inference";
 import { GoogleGenAI } from "@google/genai";
 
-// const HF_TOKEN = process.env.HF_TOKEN;
-// const inference = new InferenceClient(HF_TOKEN);
+const HF_TOKEN = process.env.HF_TOKEN;
+const inference = new InferenceClient(HF_TOKEN);
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// export async function generateImage(prompt: string) {
-//   try {
-//     console.log("start generating...");
-//     const result = await inference.textToImage({
-//       model: "black-forest-labs/FLUX.1-dev",
-//       inputs: prompt,
-//     });
-//     console.log(result)
-//     return result;
-
-//     // const buffer = Buffer.from(result.);
-//     // console.log("stop generating...");
-//     // return {
-//     //   type: result.type,
-//     //   buffer,
-//     // };
-//   } catch (error) {
-//     console.error(error);
-//     throw new Error("Image generation failed: " + error.message);
-//   }
-// }
+export async function generateImage(prompt: string) {
+  try {
+    throw new Error("Image generation is currently disabled.");
+    const result = await inference.textToImage({
+      model: "black-forest-labs/FLUX.1-dev",
+      inputs: prompt,
+    });
+    return { result, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: (error as Error).message || "Image generation failed" };
+  }
+}
 
 export async function talkToAI(userInput: string, currentPage: string, lastResponse: string) {
   const prompt = `

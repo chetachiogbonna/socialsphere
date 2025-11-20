@@ -8,6 +8,8 @@ import { AIResponse, Post } from "@/types";
 import { Id } from "../../convex/_generated/dataModel";
 import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import { toast } from "sonner";
+import { generateImage } from "@/actions/ai";
+import { get } from "http";
 
 type INITIALAIACTIONCONTEXTTYPE = {
   runAI: (textInput: string) => Promise<void | AIResponse>
@@ -52,7 +54,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
   const { currentUser } = useCurrentUserStore();
-  const { post, setPost, currentViewingPost } = usePostStore();
+  const { post, setPost, currentViewingPost, setIsGeneratingImage, setImageFile, setImageUrl, setImagePrompt } = usePostStore();
 
   const toggleLikeMutation = useMutation(api.post.toggleLike);
   const toggleSaveMutation = useMutation(api.post.toggleSave);
@@ -85,6 +87,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
             }
           }
 
+          // sometimes the web speech doesn't trigger the onend event, so we simulate it
           simulateSpeech(text);
 
           speechSynthesis.speak(utterance);
@@ -98,6 +101,31 @@ function AIActionProvider({ children }: { children: ReactNode }) {
             }
           };
 
+        }
+      }
+
+      const getImage = async (prompt: string) => {
+        if (!prompt) {
+          return toast.error("Please provide a prompt.")
+        }
+
+        setIsGeneratingImage(true)
+
+        try {
+          const response = await generateImage(prompt) as unknown as { result: Blob, error: string | null }
+
+          if (response.error) {
+            throw new Error(response.error)
+          }
+
+          setImageFile(response.result)
+          const imageUrl = URL.createObjectURL(response.result)
+          setImageUrl(imageUrl)
+          toast.success("Image generated successfully.")
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : "Failed to generate image.")
+        } finally {
+          setIsGeneratingImage(false)
         }
       }
 
@@ -217,32 +245,46 @@ function AIActionProvider({ children }: { children: ReactNode }) {
         }
 
         if (pathname === "/create-post" && parsed.action === "create_post" && ["navigate", "create_post"].includes(parsed.action)) {
-          const typingEffect = async (textOrArray: string | string[], field: string) => {
-            if (Array.isArray(textOrArray)) {
-              let newArray: string[] = []
+          const typingEffect = async (textOrArray: string | string[], field: string, isolatedFromPost = false) => {
+            if (isolatedFromPost) {
+              const newTextArray = (textOrArray as string).split("")
+              let newText = "";
 
-              for (const item of textOrArray) {
-                await new Promise((resolve) => setTimeout(resolve, 500));
-                newArray = [...newArray, item];
+              for (let i = 0; i < newTextArray.length; i++) {
+                await new Promise((resolve) => setTimeout(resolve, 100));
+                newText += newTextArray[i];
 
-                setPost({ ...post, [field]: newArray } as Pick<Post, "title" | "location" | "tags">)
+                setImagePrompt(newText)
               }
 
-              setPost({ ...post, [field]: newArray } as Pick<Post, "title" | "location" | "tags">)
-              return;
-            }
 
-            const newTextArray = textOrArray.split("")
-            let newText = "";
+            } else {
+              if (Array.isArray(textOrArray)) {
+                let newArray: string[] = []
 
-            for (let i = 0; i < newTextArray.length; i++) {
-              await new Promise((resolve) => setTimeout(resolve, 100));
-              newText += newTextArray[i];
+                for (const item of textOrArray) {
+                  await new Promise((resolve) => setTimeout(resolve, 500));
+                  newArray = [...newArray, item];
+
+                  setPost({ ...post, [field]: newArray } as Pick<Post, "title" | "location" | "tags">)
+                }
+
+                setPost({ ...post, [field]: newArray } as Pick<Post, "title" | "location" | "tags">)
+                return;
+              }
+
+              const newTextArray = textOrArray.split("")
+              let newText = "";
+
+              for (let i = 0; i < newTextArray.length; i++) {
+                await new Promise((resolve) => setTimeout(resolve, 100));
+                newText += newTextArray[i];
+
+                setPost({ ...post, [field]: newText } as Pick<Post, "title" | "location" | "tags">)
+              }
 
               setPost({ ...post, [field]: newText } as Pick<Post, "title" | "location" | "tags">)
             }
-
-            setPost({ ...post, [field]: newText } as Pick<Post, "title" | "location" | "tags">)
           }
 
           const scrollTitle = document.getElementById("scroll-title");
@@ -251,6 +293,14 @@ function AIActionProvider({ children }: { children: ReactNode }) {
 
           scrollTitle?.scrollIntoView({ behavior: "smooth", block: "start" })
           await typingEffect(parsed.title, "title")
+
+          try {
+            await typingEffect(parsed.image_prompt, "imagePrompt", true)
+            await getImage(parsed.image_prompt);
+          } catch (error) {
+            console.error("Error generating image from AI prompt:", error);
+            toast.error("Error generating image from AI prompt.");
+          }
 
           scrollLocation?.scrollIntoView({ behavior: "smooth", block: "center" })
           await typingEffect(parsed.location, "location")
