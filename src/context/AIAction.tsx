@@ -48,7 +48,14 @@ function AIActionProvider({ children }: { children: ReactNode }) {
   const [lastResponse, setLastResponse] = useState<AIResponse | null>(null);
   const aiIsSpeakingRef = useRef(false);
 
-  const mode = typeof window !== "undefined" && JSON.parse(localStorage.getItem("lazy-mode")!);
+  const [mode, setMode] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const lazyMode = localStorage.getItem("lazy-mode");
+      setMode(lazyMode ? JSON.parse(lazyMode) : false);
+    }
+  }, []);
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
@@ -255,7 +262,6 @@ function AIActionProvider({ children }: { children: ReactNode }) {
 
                 setImagePrompt(newText)
               }
-
 
             } else {
               if (Array.isArray(textOrArray)) {
