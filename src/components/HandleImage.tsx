@@ -154,14 +154,7 @@ function HandleImage({ post }: { post?: Post }) {
                 disabled={isGeneratingImage}
                 className="bg-blue hover:bg-[#a33af9d0] text-center"
               >
-                {isGeneratingImage ? (
-                  <>
-                    Generating...
-                    {isGeneratingImage && <Loader className="animate-spin ml-1" />}
-                  </>
-                ) : (
-                  "Generate image"
-                )}
+                {isGeneratingImage ? "Generating..." : "Generate image"}
               </Button>
             </div>
           )
