@@ -54,8 +54,7 @@ function PostStats({ post, showComment }: { post: Post, showComment: boolean }) 
     toggleSaveMutation({ postId: post._id, userId });
   }
 
-  if (!currentUser) return toast.error("No user found");
-
+  if (!currentUser) return null;
 
   return (
     <CardFooter className="flex flex-col gap-3 px-4">

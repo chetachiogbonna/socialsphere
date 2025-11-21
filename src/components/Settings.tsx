@@ -4,18 +4,14 @@ import { Settings as LucideSettings } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
+import { useAIAction } from '@/context/AIAction';
 
 function Settings() {
   const [open, setOpen] = useState(false)
-  const [lazyMode, setLazyMode] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    try { return JSON.parse(localStorage.getItem("lazy-mode") ?? "false"); } catch { return false; }
-  })
-  const [autoCreatePost, setAutoCreatePost] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    try { return JSON.parse(localStorage.getItem("auto-create-post") ?? "false"); } catch { return false; }
-  })
+  const { lazyMode, setLazyMode, stopListening } = useAIAction()
+  const [autoCreatePost, setAutoCreatePost] = useState(false);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     localStorage.setItem("lazy-mode", JSON.stringify(lazyMode))
@@ -38,16 +34,24 @@ function Settings() {
 
       {open && (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent showCloseButton={true}>
+          <DialogContent
+            showCloseButton={true}
+            className="bg-dark/90 border border-gray-700 max-w-lg flex flex-col"
+          >
             <DialogHeader>
               <DialogTitle>Choose your preferences</DialogTitle>
-              <DialogDescription>
-                <p className="text-gray-300 flex justify-between items-center mb-3">
+              <DialogDescription className="mt-4 flex flex-col gap-6">
+                <p className="text-gray-300 flex justify-between items-center">
                   Lazy Mode
                   <Switch
                     className="bg-black"
                     checked={lazyMode}
-                    onCheckedChange={() => setLazyMode(prev => !prev)}
+                    onCheckedChange={() => {
+                      if (lazyMode) {
+                        stopListening()
+                      }
+                      setLazyMode(!lazyMode)
+                    }}
                     aria-disabled="false"
                   />
                 </p>
@@ -59,23 +63,26 @@ function Settings() {
                     onCheckedChange={() => setAutoCreatePost(prev => !prev)}
                     aria-readonly="true"
                   />
-                  <div className="flex justify-end mt-10">
-                    <Button
-                      className="bg-blue hover:bg-blue cursor-pointer"
-                      onClick={() => {
-                        setOpen(false)
-                      }}
-                    >
-                      Save
-                    </Button>
-                  </div>
                 </p>
               </DialogDescription>
             </DialogHeader>
+            <DialogFooter>
+              <div className="flex justify-end mt-10">
+                <Button
+                  className="bg-blue hover:bg-blue cursor-pointer"
+                  onClick={() => {
+                    setOpen(false)
+                  }}
+                >
+                  Save
+                </Button>
+              </div>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 }
 
