@@ -8,7 +8,7 @@ import { useAIAction } from "@/context/AIAction";
 
 export default function RobotIcon() {
   const pathname = usePathname()
-  const { runAI, startListening, stopListening, transcript, listening, loading, aiIsSpeaking, resetTranscript, mode } = useAIAction();
+  const { runAI, startListening, stopListening, transcript, listening, loading, aiIsSpeaking, resetTranscript, lazyMode } = useAIAction();
 
   const handleClick = () => {
     if (transcript || listening) {
@@ -32,13 +32,13 @@ export default function RobotIcon() {
         whileTap={{ scale: 0.9 }}
         animate={listening || aiIsSpeaking ? { y: [0, -3, 0] } : { y: 0 }}
         transition={{ repeat: listening || aiIsSpeaking ? Infinity : 0, duration: 1 }}
-        className={`${pathname === "/" ? "p-1" : "p-5"} rounded-full bg-[#1A1A1A] cursor-pointer ${glow} transition-all relative ${((pathname === "/" && (listening || transcript)) || (!mode && transcript)) ? "z-1000" : "z-20"}`}
+        className={`${pathname === "/" ? "p-1" : "p-5"} rounded-full bg-[#1A1A1A] cursor-pointer ${glow} transition-all relative ${((pathname === "/" && (listening || transcript)) || (!lazyMode && transcript)) ? "z-1000" : "z-20"}`}
         disabled={loading || aiIsSpeaking}
       >
         <Bot className={cn("", pathname === "/" ? "w-6 h-6" : "w-8 h-8")} />
 
         <motion.span
-          className="absolute z-[10000] inset-0 rounded-full border-2 border-indigo-400"
+          className="absolute z-[1500] inset-0 rounded-full border-2 border-indigo-400"
           animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         />
@@ -46,7 +46,7 @@ export default function RobotIcon() {
         {/* Listening ripple */}
         {listening && (
           <motion.span
-            className="absolute z-[10000] inset-0 rounded-full border-2 border-blue-400"
+            className="absolute z-[1500] inset-0 rounded-full border-2 border-blue-400"
             animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
           />

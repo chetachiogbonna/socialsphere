@@ -20,7 +20,8 @@ type INITIALAIACTIONCONTEXTTYPE = {
   startListening: () => void
   stopListening: () => void,
   resetTranscript: () => void,
-  mode: boolean
+  lazyMode: boolean,
+  setLazyMode: (mode: boolean) => void
 }
 
 const INITIALAIACTION: INITIALAIACTIONCONTEXTTYPE = {
@@ -33,7 +34,8 @@ const INITIALAIACTION: INITIALAIACTIONCONTEXTTYPE = {
   startListening: () => { },
   stopListening: () => { },
   resetTranscript: () => { },
-  mode: false
+  lazyMode: false,
+  setLazyMode: () => { }
 }
 
 let isGloballyProcessing = false;
@@ -48,12 +50,12 @@ function AIActionProvider({ children }: { children: ReactNode }) {
   const [lastResponse, setLastResponse] = useState<AIResponse | null>(null);
   const aiIsSpeakingRef = useRef(false);
 
-  const [mode, setMode] = useState(false);
+  const [lazyMode, setLazyMode] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const lazyMode = localStorage.getItem("lazy-mode");
-      setMode(lazyMode ? JSON.parse(lazyMode) : false);
+      setLazyMode(lazyMode ? JSON.parse(lazyMode) : false);
     }
   }, []);
 
@@ -85,7 +87,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
 
             if (aiIsSpeakingRef.current) {
               aiIsSpeakingRef.current = false;
-              if (mode) {
+              if (lazyMode) {
                 SpeechRecognition.startListening({ continuous: true, language: "en-US" });
               } else {
                 resetTranscript();
@@ -100,7 +102,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
 
           utterance.onend = () => {
             aiIsSpeakingRef.current = false;
-            if (mode) {
+            if (lazyMode) {
               SpeechRecognition.startListening({ continuous: true, language: "en-US" });
             } else {
               resetTranscript();
@@ -211,7 +213,6 @@ function AIActionProvider({ children }: { children: ReactNode }) {
           }
 
           if (!currentUser) {
-            toast.error("No user found.");
             return parsed;
           }
 
@@ -350,7 +351,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
         }, 1000);
       }
     },
-    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse, mode, currentViewingPost, loading, setIsGeneratingImage, setImageFile, setImageUrl, setImagePrompt, resetTranscript]
+    [pathname, router, toggleLikeMutation, toggleSaveMutation, handleComment, handleDeletePost, currentUser, post, setPost, lastResponse, lazyMode, currentViewingPost, loading, setIsGeneratingImage, setImageFile, setImageUrl, setImagePrompt, resetTranscript]
   );
 
   const startListening = () =>
@@ -358,17 +359,17 @@ function AIActionProvider({ children }: { children: ReactNode }) {
   const stopListening = () => SpeechRecognition.stopListening();
 
   useEffect(() => {
-    if (mode) {
-      if (!transcript && !listening && !loading && !aiIsSpeakingRef.current) {
-        startListening()
-      } else if (loading || aiIsSpeakingRef.current) {
-        stopListening()
-      }
+    if (lazyMode) return;
+
+    if (!transcript && !listening && !loading && !aiIsSpeakingRef.current) {
+      startListening()
+    } else if (loading || aiIsSpeakingRef.current) {
+      stopListening()
     }
-  }, [loading, listening, transcript, mode]);
+  }, [loading, listening, transcript, lazyMode]);
 
   useEffect(() => {
-    if (!mode) return;
+    if (!lazyMode) return;
 
     let silenceTimer: NodeJS.Timeout | null = null;
 
@@ -386,7 +387,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
     return () => {
       if (silenceTimer) clearTimeout(silenceTimer);
     };
-  }, [transcript, runAI, resetTranscript, mode]);
+  }, [transcript, runAI, resetTranscript, lazyMode]);
 
   return (
     <AIAction.Provider
@@ -400,7 +401,8 @@ function AIActionProvider({ children }: { children: ReactNode }) {
         startListening,
         stopListening,
         resetTranscript,
-        mode
+        lazyMode,
+        setLazyMode
       }}
     >
       {children}

@@ -12,7 +12,7 @@ import { useAIAction } from "@/context/AIAction";
 import { X } from "lucide-react";
 
 function Header() {
-  const { transcript, listening, mode, resetTranscript, stopListening, startListening } = useAIAction();
+  const { transcript, listening, lazyMode, resetTranscript, stopListening, startListening } = useAIAction();
   const { currentUser } = useCurrentUserStore()
   const [wantToLogOut, setWantToLogOut] = useState(false)
 
@@ -27,17 +27,19 @@ function Header() {
               <DropdownMenuTrigger className="mt-3">
                 <UserButton />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="z-[200] bg-[#404040] border-[#3B3C3C] text-[#E9E9E9]">
+              <DropdownMenuContent className="z-[2000] bg-[#404040] border-[#3B3C3C] text-[#E9E9E9]">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-[#262626]" />
-                <DropdownMenuItem
-                  asChild
-                  className="cursor-pointer"
-                >
-                  <Link href={`/profile/${currentUser?._id}`}>
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
+                {currentUser && (
+                  <DropdownMenuItem
+                    asChild
+                    className="cursor-pointer"
+                  >
+                    <Link href={`/profile/${currentUser?._id}`}>
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem className="cursor-pointer">
                   Settings
                 </DropdownMenuItem>
@@ -54,7 +56,7 @@ function Header() {
       </header>
 
       <AnimatePresence>
-        {(mode ? transcript : listening) && (
+        {(lazyMode ? transcript : listening) && (
           <div className="fixed inset-0 z-[1000] bg-[rgba(0,0,0,0.5)]">
             <motion.div
               initial={{ y: "100%", opacity: 0 }}
@@ -86,7 +88,7 @@ function Header() {
                   onClick={() => {
                     stopListening();
                     resetTranscript();
-                    if (mode) {
+                    if (lazyMode) {
                       startListening();
                     }
                   }}
