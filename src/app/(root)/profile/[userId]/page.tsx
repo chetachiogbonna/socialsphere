@@ -14,19 +14,24 @@ import { Post } from "@/types";
 import PostStats from "@/components/PostStats";
 import { useParams } from "next/navigation";
 import ProfileSkeleton from "@/components/skeletons/ProfileSkeleton";
+import Link from "next/link";
 
 function Postbox({ post }: { post: Post }) {
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-gray-600 transition-all h-max">
-      <p className="text-sm text-gray-200 mb-3">{post.title}</p>
+      <p className="text-sm text-gray-200 mb-3 truncate">{post.title}</p>
 
-      <Image
-        src={post.imageUrl}
-        alt="Post"
-        width={400}
-        height={300}
-        className="w-full rounded-lg mb-3 object-cover max-h-64"
-      />
+      <div className="relative z-0">
+        <Image
+          src={post.imageUrl}
+          alt="Post"
+          className="w-full h-64 rounded-lg mb-3 object-cover max-h-64"
+          width={400}
+          height={300}
+        />
+
+        <Link href={`/post-details/${post._id}`} className="absolute inset-0" />
+      </div>
 
       <PostStats post={post} showComment={false} />
     </div>

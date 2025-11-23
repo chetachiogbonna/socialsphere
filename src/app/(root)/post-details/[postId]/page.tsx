@@ -76,7 +76,7 @@ function PostDetails() {
         </CardContent>
 
         <CardContent className="px-4 py-2">
-          <div className="h-[400px] w-full relative">
+          <div className="h-full w-full relative aspect-square">
             <Image
               src={post.imageUrl}
               alt="post image"
