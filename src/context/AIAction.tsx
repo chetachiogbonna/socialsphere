@@ -359,7 +359,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
   const stopListening = () => SpeechRecognition.stopListening();
 
   useEffect(() => {
-    if (lazyMode) return;
+    if (!lazyMode) return;
 
     if (!transcript && !listening && !loading && !aiIsSpeakingRef.current) {
       startListening()
