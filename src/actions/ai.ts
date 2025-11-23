@@ -2,14 +2,34 @@
 
 import { InferenceClient } from "@huggingface/inference";
 import { GoogleGenAI } from "@google/genai";
+import arcjet, { fixedWindow, request } from "@arcjet/next";
 
 const HF_TOKEN = process.env.HF_TOKEN;
 const inference = new InferenceClient(HF_TOKEN);
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+const aj = arcjet({
+  key: process.env.ARCJET_KEY!,
+  rules: [
+    fixedWindow({
+      mode: "LIVE",
+      window: "1d",
+      max: 5,
+    }),
+  ],
+});
+
 export async function generateImage(prompt: string) {
   try {
+    const req = await request();
+
+    const decision = await aj.protect(req);
+
+    if (decision.isDenied()) {
+      throw new Error("Daily limit reached. Try again tomorrow.");
+    }
+
     const result = await inference.textToImage({
       model: "black-forest-labs/FLUX.1-dev",
       inputs: prompt,
