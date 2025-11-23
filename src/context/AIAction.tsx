@@ -62,7 +62,16 @@ function AIActionProvider({ children }: { children: ReactNode }) {
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
   const { currentUser } = useCurrentUserStore();
-  const { post, setPost, currentViewingPost, setIsGeneratingImage, setImageFile, setImageUrl, setImagePrompt } = usePostStore();
+  const {
+    post,
+    setPost,
+    currentViewingPost,
+    setIsGeneratingImage,
+    setImageFile,
+    setImageUrl,
+    setImagePrompt,
+    setImageGenerationError
+  } = usePostStore();
 
   const toggleLikeMutation = useMutation(api.post.toggleLike);
   const toggleSaveMutation = useMutation(api.post.toggleSave);
@@ -113,6 +122,8 @@ function AIActionProvider({ children }: { children: ReactNode }) {
       }
 
       const getImage = async (prompt: string) => {
+        setImageGenerationError(null)
+
         if (!prompt) {
           return toast.error("Please provide a prompt.")
         }
@@ -132,6 +143,7 @@ function AIActionProvider({ children }: { children: ReactNode }) {
           toast.success("Image generated successfully.")
         } catch (error) {
           toast.error(error instanceof Error ? error.message : "Failed to generate image.")
+          setImageGenerationError(error instanceof Error ? error.message : "Failed to generate image.")
         } finally {
           setIsGeneratingImage(false)
         }

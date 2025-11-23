@@ -14,6 +14,8 @@ interface PostStore {
   setIsGeneratingImage: (isGeneratingImage: boolean) => void,
   imagePrompt: string,
   setImagePrompt: (imagePrompt: string) => void,
+  imageGenerationError: string | null
+  setImageGenerationError: (errorMsg: string | null) => void,
 }
 
 const usePostStore = create<PostStore>((set) => ({
@@ -29,6 +31,8 @@ const usePostStore = create<PostStore>((set) => ({
   setIsGeneratingImage: (isGeneratingImage) => set({ isGeneratingImage }),
   imagePrompt: "",
   setImagePrompt: (imagePrompt) => set({ imagePrompt }),
+  imageGenerationError: null,
+  setImageGenerationError: (errorMsg: string | null) => set({ imageGenerationError: errorMsg })
 }));
 
 export default usePostStore;

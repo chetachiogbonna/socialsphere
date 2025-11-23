@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Textarea } from './ui/textarea';
 import { generateImage } from '@/actions/ai';
-import Loader from './Loader';
 
 function UploadFile({ post }: { post?: Post }) {
   const pathname = usePathname();
@@ -81,10 +80,20 @@ function HandleImage({ post }: { post?: Post }) {
   const [generateImageWithAI, setGenerateImageWithAI] = useState(true)
 
   const {
-    imageUrl, setImageUrl, setImageFile, isGeneratingImage, setIsGeneratingImage, imagePrompt, setImagePrompt
+    imageUrl,
+    setImageUrl,
+    setImageFile,
+    isGeneratingImage,
+    setIsGeneratingImage,
+    imagePrompt,
+    setImagePrompt,
+    imageGenerationError,
+    setImageGenerationError
   } = usePostStore();
 
   const getImage = async (prompt: string) => {
+    setImageGenerationError(null)
+
     if (!prompt) {
       return toast.error("Please provide a prompt.")
     }
@@ -104,6 +113,7 @@ function HandleImage({ post }: { post?: Post }) {
       toast.success("Image generated successfully.")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to generate image.")
+      setImageGenerationError(error instanceof Error ? error.message : "Failed to generate image.")
     } finally {
       setIsGeneratingImage(false)
     }
@@ -141,11 +151,17 @@ function HandleImage({ post }: { post?: Post }) {
                 onChange={(e) => setImagePrompt(e.target.value)}
               />
 
-              {imageUrl && (
-                <UploadFile
-                  post={post}
-                />
-              )}
+              <div>
+                {imageUrl && (
+                  <UploadFile
+                    post={post}
+                  />
+                )}
+
+                {imageGenerationError && (
+                  <div className="text-red-500 text-xs mt-2">{imageGenerationError}</div>
+                )}
+              </div>
 
               <Button
                 type="button"
