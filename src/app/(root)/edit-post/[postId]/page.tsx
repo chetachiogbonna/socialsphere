@@ -13,7 +13,7 @@ async function EditPost({ params }: Props) {
   const post = await convex.query(api.post.getPostById, { postId })
 
   return (
-    <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[60%] max-sm:last:mb-14 pb-20">
+    <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[60%]  pb-20">
       <div className="mb-6 flex gap-1 items-center">
         <Image
           src="/assets/icons/edit-icon.svg"

@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 function CreatePost() {
   return (
-    <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[60%] max-sm:last:mb-14 pb-20">
+    <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[60%] pb-20">
       <div id="scroll-title" className="scroll-m-10" />
 
       <div className="mb-6 flex gap-1 items-center">

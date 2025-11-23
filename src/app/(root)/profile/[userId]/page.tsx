@@ -67,7 +67,7 @@ function Profile() {
 
   return (
     <>
-      <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[70%] max-sm:last:mb-14 pb-20 min-h-screen">
+      <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[70%]  pb-20 min-h-screen">
         <div className="relative bg-gray-800 rounded-lg overflow-hidden h-48 md:h-56">
           {userProfileDetails.cover_photo ? (
             <Image

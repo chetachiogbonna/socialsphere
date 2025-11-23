@@ -2,7 +2,7 @@ import PostboxSkeleton from "./PostboxSkeleton";
 
 const ProfileSkeleton = () => {
   return (
-    <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[70%] max-sm:last:mb-14 pb-20 min-h-screen">
+    <section className="mx-auto space-y-4 w-[98%] md:w-[80%] lg:w-[70%] pb-20 min-h-screen">
       {/* Cover Photo Skeleton */}
       <div className="relative bg-gray-800 rounded-lg overflow-hidden h-48 md:h-56 animate-pulse">
         <div className="w-full h-full bg-gradient-to-r from-gray-700 to-gray-800" />

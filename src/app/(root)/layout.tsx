@@ -57,7 +57,7 @@ export default function RootLayout({
       <main className="max-w-screen-2xl mx-auto h-screen overflow-hidden flex">
         <Header />
         <LeftSidebar />
-        <section className="flex-1 overflow-y-auto pt-[70px]">
+        <section className="flex-1 overflow-y-auto pt-[70px] max-md:pb-[100px]">
           {children}
         </section>
         <Bottombar />
