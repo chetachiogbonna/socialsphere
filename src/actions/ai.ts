@@ -10,7 +10,6 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function generateImage(prompt: string) {
   try {
-    throw new Error("Image generation is currently disabled.");
     const result = await inference.textToImage({
       model: "black-forest-labs/FLUX.1-dev",
       inputs: prompt,
