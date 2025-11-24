@@ -1,20 +1,22 @@
 "use client";
 
 import Logo from "./Logo";
-import { SignOutButton, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { motion, AnimatePresence } from "framer-motion";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import useCurrentUserStore from "@/stores/useCurrentUserStore";
 import Link from "next/link";
 import { useState } from "react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { useAIAction } from "@/context/AIAction";
 import { X } from "lucide-react";
+import Settings from "./Settings";
+import LogOutModal from "./LogOutModal";
 
 function Header() {
   const { transcript, listening, lazyMode, resetTranscript, stopListening, startListening } = useAIAction();
   const { currentUser } = useCurrentUserStore()
   const [wantToLogOut, setWantToLogOut] = useState(false)
+  const [openSettings, setOpenSettings] = useState(false)
 
   return (
     <>
@@ -40,8 +42,16 @@ function Header() {
                     </Link>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem className="cursor-pointer">
-                  Settings
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  asChild
+                >
+                  <button
+                    onClick={() => setOpenSettings(true)}
+                    className="w-full"
+                  >
+                    Settings
+                  </button>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer"
@@ -102,29 +112,9 @@ function Header() {
         )}
       </AnimatePresence>
 
-      {wantToLogOut && (
-        <AlertDialog open={wantToLogOut}>
-          <AlertDialogContent className="bg-dark-3">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Please log me out now.</AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel
-                className="bg-dark-2"
-                onClick={() => setWantToLogOut(false)}
-              >
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-blue hover:bg-blue"
-                asChild
-              >
-                <SignOutButton />
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+      <LogOutModal wantToLogOut={wantToLogOut} setWantToLogOut={setWantToLogOut} />
+
+      <Settings open={openSettings} setOpen={setOpenSettings} />
     </>
   );
 }
