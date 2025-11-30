@@ -3,7 +3,7 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { useAIAction } from '@/context/AIAction';
 
 interface SettingsProps {
@@ -14,11 +14,6 @@ interface SettingsProps {
 function Settings({ open, setOpen }: SettingsProps) {
   const { lazyMode, setLazyMode, stopListening } = useAIAction()
   const [autoCreatePost, setAutoCreatePost] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("lazy-mode", JSON.stringify(lazyMode))
-  }, [lazyMode])
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -33,43 +28,47 @@ function Settings({ open, setOpen }: SettingsProps) {
       >
         <DialogHeader>
           <DialogTitle>Choose your preferences</DialogTitle>
-          <DialogDescription className="mt-4 flex flex-col gap-6">
-            <p className="text-gray-300 flex justify-between items-center">
-              Lazy Mode
-              <Switch
-                className="bg-black"
-                checked={lazyMode}
-                onCheckedChange={() => {
-                  if (lazyMode) {
-                    stopListening()
-                  }
-                  setLazyMode(!lazyMode)
-                }}
-                aria-disabled="false"
-              />
-            </p>
-            <p className="text-gray-300 flex justify-between items-center">
-              Auto-Create Post
-              <Switch
-                className="bg-black"
-                checked={autoCreatePost}
-                onCheckedChange={() => setAutoCreatePost(prev => !prev)}
-                aria-readonly="true"
-              />
-            </p>
+          <DialogDescription className="text-[13px]">
+            Configure how you interact with the AI assistant. Lazy Mode enables continuous voice listening, while Auto-Create Post automatically publishes your posts.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
-          <div className="flex justify-end mt-10">
-            <Button
-              className="bg-blue hover:bg-blue cursor-pointer"
-              onClick={() => {
-                setOpen(false)
+        <div className="mt-4 flex flex-col gap-6">
+          <div className="text-gray-300 flex justify-between items-center">
+            Lazy Mode
+            <Switch
+              className="bg-black"
+              checked={lazyMode}
+              onCheckedChange={() => {
+                if (lazyMode) {
+                  stopListening()
+                }
+
+                localStorage.setItem("lazy-mode", JSON.stringify(!lazyMode))
+                setLazyMode(!lazyMode)
               }}
-            >
-              Save
-            </Button>
+              aria-disabled="false"
+            />
           </div>
+          <div className="text-gray-300 flex justify-between items-center">
+            Auto-Create Post
+            <Switch
+              className="bg-black"
+              checked={autoCreatePost}
+              onCheckedChange={() => setAutoCreatePost(prev => !prev)}
+              aria-readonly="true"
+            />
+          </div>
+        </div>
+        <DialogFooter className="sm:justify-end">
+          <DialogClose asChild>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

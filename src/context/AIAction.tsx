@@ -34,7 +34,7 @@ const INITIALAIACTION: INITIALAIACTIONCONTEXTTYPE = {
   startListening: () => { },
   stopListening: () => { },
   resetTranscript: () => { },
-  lazyMode: false,
+  lazyMode: true,
   setLazyMode: () => { }
 }
 
@@ -53,11 +53,11 @@ function AIActionProvider({ children }: { children: ReactNode }) {
   const [lazyMode, setLazyMode] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const lazyMode = localStorage.getItem("lazy-mode");
-      setLazyMode(lazyMode ? JSON.parse(lazyMode) : false);
-    }
-  }, []);
+    if (window === undefined) return;
+
+    const mode = JSON.parse(localStorage.getItem("lazy-mode") ?? false.toString())
+    setLazyMode(mode)
+  }, [setLazyMode])
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
