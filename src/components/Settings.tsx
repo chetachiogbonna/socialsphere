@@ -12,7 +12,7 @@ interface SettingsProps {
 }
 
 function Settings({ open, setOpen }: SettingsProps) {
-  const { lazyMode, setLazyMode, autoCreatePost, setAutoCreatePost, stopListening } = useAIAction()
+  const { lazyMode, setLazyMode, stopListening } = useAIAction()
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -23,38 +23,24 @@ function Settings({ open, setOpen }: SettingsProps) {
         <DialogHeader>
           <DialogTitle>Choose your preferences</DialogTitle>
           <DialogDescription className="text-[13px]">
-            Configure how you interact with the AI assistant. Lazy Mode enables continuous voice listening, while Auto-Create Post automatically publishes your posts.
+            Configure how you interact with the AI assistant. Lazy Mode enables continuous voice listening.
           </DialogDescription>
         </DialogHeader>
-        <div className="mt-4 flex flex-col gap-6">
-          <div className="text-gray-300 flex justify-between items-center">
-            Lazy Mode
-            <Switch
-              className="bg-black"
-              checked={lazyMode}
-              onCheckedChange={() => {
-                if (lazyMode) {
-                  stopListening()
-                }
+        <div className="mt-4 text-gray-300 flex justify-between items-center">
+          Lazy Mode
+          <Switch
+            className="bg-black"
+            checked={lazyMode}
+            onCheckedChange={() => {
+              if (lazyMode) {
+                stopListening()
+              }
 
-                localStorage.setItem("lazy-mode", JSON.stringify(!lazyMode))
-                setLazyMode(!lazyMode)
-              }}
-              aria-disabled="false"
-            />
-          </div>
-          <div className="text-gray-300 flex justify-between items-center">
-            Auto-Create Post
-            <Switch
-              className="bg-black"
-              checked={autoCreatePost}
-              onCheckedChange={() => {
-                localStorage.setItem("auto-create-post", JSON.stringify(!autoCreatePost))
-                setAutoCreatePost(!autoCreatePost)
-              }}
-              aria-readonly="true"
-            />
-          </div>
+              localStorage.setItem("lazy-mode", JSON.stringify(!lazyMode))
+              setLazyMode(!lazyMode)
+            }}
+            aria-disabled="false"
+          />
         </div>
         <DialogFooter className="sm:justify-end">
           <DialogClose asChild>
