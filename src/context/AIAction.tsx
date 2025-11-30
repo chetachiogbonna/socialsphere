@@ -21,11 +21,13 @@ type INITIALAIACTIONCONTEXTTYPE = {
   stopListening: () => void,
   resetTranscript: () => void,
   lazyMode: boolean,
-  setLazyMode: (mode: boolean) => void
+  setLazyMode: (mode: boolean) => void,
+  autoCreatePost: boolean,
+  setAutoCreatePost: (autoCreatePost: boolean) => void,
 }
 
 const INITIALAIACTION: INITIALAIACTIONCONTEXTTYPE = {
-  runAI: async (_: string) => undefined,
+  runAI: async () => undefined,
   lastResponse: null,
   loading: false,
   transcript: "",
@@ -35,7 +37,9 @@ const INITIALAIACTION: INITIALAIACTIONCONTEXTTYPE = {
   stopListening: () => { },
   resetTranscript: () => { },
   lazyMode: true,
-  setLazyMode: () => { }
+  setLazyMode: () => { },
+  autoCreatePost: false,
+  setAutoCreatePost: () => { }
 }
 
 let isGloballyProcessing = false;
@@ -50,14 +54,23 @@ function AIActionProvider({ children }: { children: ReactNode }) {
   const [lastResponse, setLastResponse] = useState<AIResponse | null>(null);
   const aiIsSpeakingRef = useRef(false);
 
-  const [lazyMode, setLazyMode] = useState(false);
+  const [lazyMode, setLazyMode] = useState(true);
+  const [autoCreatePost, setAutoCreatePost] = useState(false);
 
   useEffect(() => {
     if (window === undefined) return;
 
-    const mode = JSON.parse(localStorage.getItem("lazy-mode") ?? false.toString())
+    const mode = JSON.parse(localStorage.getItem("lazy-mode") ?? true.toString())
     setLazyMode(mode)
   }, [setLazyMode])
+
+
+  useEffect(() => {
+    if (window === undefined) return;
+
+    const autoCratePost = JSON.parse(localStorage.getItem("auto-create-post") ?? false.toString())
+    setAutoCreatePost(autoCreatePost)
+  }, [setAutoCreatePost])
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
@@ -414,7 +427,9 @@ function AIActionProvider({ children }: { children: ReactNode }) {
         stopListening,
         resetTranscript,
         lazyMode,
-        setLazyMode
+        setLazyMode,
+        autoCreatePost,
+        setAutoCreatePost
       }}
     >
       {children}

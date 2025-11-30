@@ -12,13 +12,7 @@ interface SettingsProps {
 }
 
 function Settings({ open, setOpen }: SettingsProps) {
-  const { lazyMode, setLazyMode, stopListening } = useAIAction()
-  const [autoCreatePost, setAutoCreatePost] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("auto-create-post", JSON.stringify(autoCreatePost))
-  }, [autoCreatePost])
+  const { lazyMode, setLazyMode, autoCreatePost, setAutoCreatePost, stopListening } = useAIAction()
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -54,7 +48,10 @@ function Settings({ open, setOpen }: SettingsProps) {
             <Switch
               className="bg-black"
               checked={autoCreatePost}
-              onCheckedChange={() => setAutoCreatePost(prev => !prev)}
+              onCheckedChange={() => {
+                localStorage.setItem("auto-create-post", JSON.stringify(!autoCreatePost))
+                setAutoCreatePost(!autoCreatePost)
+              }}
               aria-readonly="true"
             />
           </div>
